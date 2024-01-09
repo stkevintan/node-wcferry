@@ -21,7 +21,10 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - run: pnpm i --frozen-lockfile
-      - uses: nrwl/nx-set-shas@v3
+      - uses: nrwl/nx-set-shas@v4
+      - run: |
+          echo "BASE: ${{ env.NX_BASE }}"
+          echo "HEAD: ${{ env.NX_HEAD }}"
       # This line is needed for nx affected to work when CI is running on a PR
       - run: git branch --track main origin/main
 
