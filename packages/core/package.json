@@ -1,10 +1,24 @@
 {
     "name": "@wcferry/core",
     "version": "0.0.1",
-    "dependencies": {
-        "@swc/helpers": "~0.5.2"
+    "scripts": {
+        "postinstall": "powershell ./gen-proto.ps1"
     },
     "type": "commonjs",
     "main": "./src/index.js",
-    "typings": "./src/index.d.ts"
+    "typings": "./src/index.d.ts",
+    "dependencies": {
+        "@rustup/nng": "^0.1.2",
+        "@swc/helpers": "~0.5.2",
+        "fast-xml-parser": "^4.3.2",
+        "file-box": "^1.4.15",
+        "google-protobuf": "^3.21.2",
+        "mime": "^3.0.0"
+    },
+    "devDependencies": {
+        "@types/google-protobuf": "^3.15.12",
+        "@types/mime": "^3.0.4",
+        "grpc-tools": "^1.12.4",
+        "protoc-gen-ts": "^0.8.7"
+    }
 }
