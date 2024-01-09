@@ -1,0 +1,30 @@
+{
+    "name": "ws",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "packages/ws/src",
+    "projectType": "library",
+    "targets": {
+        "build": {
+            "executor": "@nx/js:swc",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/packages/ws",
+                "main": "packages/ws/src/index.ts",
+                "tsConfig": "packages/ws/tsconfig.lib.json",
+                "assets": ["packages/ws/*.md"]
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "executor": "@nx/vite:test",
+            "outputs": ["{options.reportsDirectory}"],
+            "options": {
+                "reportsDirectory": "../../coverage/packages/ws"
+            }
+        }
+    },
+    "tags": []
+}

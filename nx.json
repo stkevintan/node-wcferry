@@ -1,18 +1,32 @@
 {
-  "extends": "nx/presets/npm.json",
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "affected": {
-    "defaultBase": "master"
-  },
-  "targetDefaults": {
-    "build": {
-      "cache": true,
-      "dependsOn": [
-        "^build"
-      ]
+    "generators": {
+        "@nx/js:library": {
+            "bundler": "swc"
+        }
     },
-    "lint": {
-      "cache": true
+    "targetDefaults": {
+        "build": {
+            "cache": true,
+            "dependsOn": ["^build"]
+        },
+        "test": {
+            "cache": true
+        },
+        "lint": {
+            "cache": true,
+            "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.js"
+            ]
+        },
+        "@nx/vite:test": {
+            "cache": true,
+            "inputs": ["default", "^default"]
+        }
+    },
+    "affected": {
+        "defaultBase": "master"
     }
-  }
 }

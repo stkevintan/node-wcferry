@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "baseUrl": "./",
+        "declaration": true,
+        "declarationMap": true,
+        "outDir": "./dist",
+        "importHelpers": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "paths": {
+            "@wcferry/core": ["packages/core/src/index.ts"],
+            "@wcferry/ws": ["packages/ws/src/index.ts"]
+        }
+    }
+}
