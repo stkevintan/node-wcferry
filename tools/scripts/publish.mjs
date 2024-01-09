@@ -25,7 +25,7 @@ function invariant(condition, message) {
 let [, , name, version, tag] = process.argv;
 console.log("get version: %s, tag: %s", version, tag);
 
-version = version.replace(/^core-/, "");
+version = version.replace(/^core@/, "");
 
 // A simple SemVer validation to validate the version
 const validVersion = /^\d+\.\d+\.\d+(-\w+\.\d+)?/;
