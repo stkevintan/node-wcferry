@@ -48,7 +48,7 @@ jobs:
                   elif git log -1 --pretty=%B | grep "^core|[0-9]\+\.[0-9]\+\.[0-9]\+";
                   then
                     echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-                    pnpm nx run core:publish --tag next
+                    pnpm nx run core:publish --ver `git log -1 --pretty=%B` --tag next
                   else
                     echo "Not a release, skipping publish"
                   fi
