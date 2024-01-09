@@ -41,11 +41,11 @@ jobs:
             - name: Publish
               run: |
                   npm config set provenance true
-                  if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
+                  if git log -1 --pretty=%B | grep "^core|[0-9]\+\.[0-9]\+\.[0-9]\+$";
                   then
                     echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
                     pnpm nx run core:publish
-                  elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
+                  elif git log -1 --pretty=%B | grep "^core|[0-9]\+\.[0-9]\+\.[0-9]\+";
                   then
                     echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
                     pnpm nx run core:publish --tag next
