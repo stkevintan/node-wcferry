@@ -69,7 +69,7 @@ export class FileRef implements VirtualFileRef {
     }
 
     private getName(opt?: { mimeType?: string; inferredName?: string }) {
-        let basename = this.name ?? opt?.inferredName ?? randomUUID();
+        const basename = this.name ?? opt?.inferredName ?? randomUUID();
         let ext = path.extname(basename);
         if (ext) {
             return basename;

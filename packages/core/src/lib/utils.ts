@@ -9,7 +9,9 @@ export function sleep(ms = 1000) {
 export function ensureDirSync(dir: string) {
     try {
         mkdirSync(dir, { recursive: true });
-    } catch {}
+    } catch {
+        // noop
+    }
 }
 
 export function createTmpDir(name = "wcferry") {

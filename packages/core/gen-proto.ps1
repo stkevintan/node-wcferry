@@ -45,7 +45,7 @@ Get-ChildItem -Path $PROTO_GENERATED -Filter *.ts -Recurse | ForEach-Object {
     $contents = Get-Content $_.FullName -Raw
 
     # Prepend //@ts-nocheck to the file
-    $contents = "//@ts-nocheck $eol" + $contents
+    $contents = "/* eslint-disable */ $eol //@ts-nocheck $eol" + $contents
  
     # Write the new contents to the file
     Set-Content -Path $_.FullName -Value $contents
