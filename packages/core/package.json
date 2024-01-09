@@ -2,7 +2,7 @@
     "name": "@wcferry/core",
     "version": "0.0.1",
     "scripts": {
-        "postinstall": "powershell ./gen-proto.ps1"
+        "build:proto": "powershell ./gen-proto.ps1"
     },
     "type": "commonjs",
     "main": "./src/index.js",

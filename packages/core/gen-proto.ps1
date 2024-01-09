@@ -13,9 +13,11 @@ $PROTO_GENERATED = New-ProtoDir "$PSScriptRoot/src/lib/proto-generated"
 # if powershell 5 or pwsh with platform Win32NT
 if (!$PSVersionTable.Platform -or ($PSVersionTable.Platform -eq "Win32NT")) {
     $ext = ".cmd"
+    $eol = "`r`n"
 }
 else {
     $ext = ""
+    $eol= "`n"
 }
 
 $PROTOC_GEN_TS_PATH = "$PSScriptRoot/node_modules/.bin/protoc-gen-ts$ext" | Resolve-Path
@@ -36,3 +38,17 @@ $arguments = @(
 )
 
 Start-Process $GRPC_TOOLS_NODE_PROTOC -ArgumentList $arguments -WorkingDirectory $PSScriptRoot -Wait -NoNewWindow
+
+# add @ts-nocheck to the generated files
+Get-ChildItem -Path $PROTO_GENERATED -Filter *.ts -Recurse | ForEach-Object {
+    # Read the current contents of the file
+    $contents = Get-Content $_.FullName -Raw
+
+    # Prepend //@ts-nocheck to the file
+    $contents = "//@ts-nocheck $eol" + $contents
+ 
+    # Write the new contents to the file
+    Set-Content -Path $_.FullName -Value $contents
+}
+
+Write-Host "Done" -f Green
