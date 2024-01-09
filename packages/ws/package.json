@@ -9,5 +9,12 @@
     "typings": "./src/index.d.ts",
     "publishConfig": {
         "registry": "https://registry.npmjs.org/"
+    },
+    "repository": {
+        "url": "git+https://github.com/stkevintan/node-wcferry.git",
+        "type": "git"
+    },
+    "author": {
+        "name": "stkevintan"
     }
 }
