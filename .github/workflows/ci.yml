@@ -1,6 +1,12 @@
 name: CI
 permissions:
   pull-requests: read
+  actions: read
+  statuses: read
+  contents: read
+  packages: read
+  checks: write
+
 on:
   push:
     branches:
