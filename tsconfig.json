@@ -9,5 +9,5 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "noEmit": true
-    },
+    }
 }

@@ -1,57 +1,57 @@
 name: CI
 permissions:
-  pull-requests: read
-  actions: read
-  statuses: read
-  contents: read
-  packages: read
-  checks: write
+    pull-requests: read
+    actions: read
+    statuses: read
+    contents: read
+    packages: read
+    checks: write
 
 on:
-  push:
-    branches:
-      # Change this if your primary branch is not main
-      - main
-  pull_request:
+    push:
+        branches:
+            # Change this if your primary branch is not main
+            - main
+    pull_request:
 
 jobs:
-  main:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install pnpm
-        run: corepack enable pnpm
-      # Cache node_modules
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-      - run: pnpm i --frozen-lockfile
-      - uses: nrwl/nx-set-shas@v4
-      - run: |
-          echo "BASE: ${{ env.NX_BASE }}"
-          echo "HEAD: ${{ env.NX_HEAD }}"
-      # This line is needed for nx affected to work when CI is running on a PR
-      # - run: git branch --track main origin/main
+    main:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - name: Install pnpm
+              run: corepack enable pnpm
+            # Cache node_modules
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: "pnpm"
+            - run: pnpm i --frozen-lockfile
+            - uses: nrwl/nx-set-shas@v4
+            - run: |
+                  echo "BASE: ${{ env.NX_BASE }}"
+                  echo "HEAD: ${{ env.NX_HEAD }}"
+            # This line is needed for nx affected to work when CI is running on a PR
+            # - run: git branch --track main origin/main
 
-      - run: pnpm nx format:check
-      - run: pnpm nx affected -t lint,test,build --parallel=3
-      - name: Publish
-        run: |
-          npm config set provenance true
-          if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            pnpm nx run core:publish
-          elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            pnpm nx run core:publish --tag next
-          else
-            echo "Not a release, skipping publish"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - run: pnpm nx format:check
+            - run: pnpm nx affected -t lint,test,build --parallel=3
+            - name: Publish
+              run: |
+                  npm config set provenance true
+                  if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
+                  then
+                    echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+                    pnpm nx run core:publish
+                  elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
+                  then
+                    echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+                    pnpm nx run core:publish --tag next
+                  else
+                    echo "Not a release, skipping publish"
+                  fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

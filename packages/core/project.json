@@ -6,26 +6,18 @@
     "targets": {
         "build": {
             "executor": "@nx/js:swc",
-            "outputs": [
-                "{options.outputPath}"
-            ],
+            "outputs": ["{options.outputPath}"],
             "options": {
                 "outputPath": "dist/packages/core",
                 "main": "packages/core/src/index.ts",
                 "tsConfig": "packages/core/tsconfig.lib.json",
-                "assets": [
-                    "packages/core/*.md"
-                ]
+                "assets": ["packages/core/*.md"]
             }
         },
         "build:proto": {
             "executor": "nx:run-commands",
-            "inputs": [
-                "{projectRoot}/proto/*"
-            ],
-            "outputs": [
-                "{projectRoot}/src/lib/proto-generated/*"
-            ],
+            "inputs": ["{projectRoot}/proto/*"],
+            "outputs": ["{projectRoot}/src/lib/proto-generated/*"],
             "options": {
                 "command": "powershell ./gen-proto.ps1",
                 "cwd": "{projectRoot}"
@@ -33,24 +25,18 @@
         },
         "lint": {
             "executor": "@nx/eslint:lint",
-            "outputs": [
-                "{options.outputFile}"
-            ]
+            "outputs": ["{options.outputFile}"]
         },
         "test": {
             "executor": "@nx/vite:test",
-            "outputs": [
-                "{options.reportsDirectory}"
-            ],
+            "outputs": ["{options.reportsDirectory}"],
             "options": {
                 "reportsDirectory": "../../coverage/packages/core"
             }
         },
         "publish": {
             "command": "node tools/scripts/publish.mjs core {args.ver} {args.tag}",
-            "dependsOn": [
-                "build"
-            ]
+            "dependsOn": ["build"]
         }
     },
     "tags": []

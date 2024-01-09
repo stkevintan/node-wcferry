@@ -10,6 +10,7 @@
     "dependencies": {
         "@rustup/nng": "^0.1.2",
         "@swc/helpers": "~0.5.2",
+        "debug": "^4.3.4",
         "google-protobuf": "^3.21.2",
         "mime": "^3.0.0"
     },
