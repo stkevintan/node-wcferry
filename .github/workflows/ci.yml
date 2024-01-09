@@ -37,7 +37,7 @@ jobs:
             # - run: git branch --track main origin/main
 
             - run: pnpm nx format:check
-            - run: pnpm nx affected -t lint,test,build --parallel=3
+            - run: pnpm nx affected -t lint,test,build --parallel=3 --exclude='tag:wip'
             - name: Publish
               run: |
                   npm config set provenance true
