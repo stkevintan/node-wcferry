@@ -29,5 +29,11 @@
     },
     "workspaces": [
         "packages/*"
-    ]
+    ],
+    "nx": {
+        "includedScripts": []
+    },
+    "publishConfig": {
+        "registry": "https://registry.npmjs.org/"
+    }
 }
