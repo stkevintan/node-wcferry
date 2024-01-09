@@ -1,4 +1,6 @@
 name: CI
+permissions:
+  pull-requests: read
 on:
   push:
     branches:
