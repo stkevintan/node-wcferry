@@ -1,6 +1,6 @@
 # Wcferry
 
-[![CI](https://github.com/stkevintan/node-wcferry/actions/workflows/ci.yml/badge.svg)](https://github.com/stkevintan/node-wcferry/actions/workflows/ci.yml) 
+[![CI](https://github.com/stkevintan/node-wcferry/actions/workflows/ci.yml/badge.svg)](https://github.com/stkevintan/node-wcferry/actions/workflows/ci.yml)
 [![npm version](https://badge.fury.io/js/@wcferry%2Fcore.svg)](https://badge.fury.io/js/@wcferry%2Fcore)
 
 A node impl of wcferry nanomsg clients:
@@ -10,13 +10,15 @@ A node impl of wcferry nanomsg clients:
 3. http: a http api server (WIP)
 
 ## Install
+
 ```
 npm i @wcferry/core
 ```
 
 ### Usage
+
 ```ts
-import { Wcferry } from '@wcferry/core'
+import { Wcferry } from '@wcferry/core';
 
 const client = new Wcferry({ port: 10086 });
 client.start();
@@ -25,10 +27,10 @@ const isLogin = client.isLogin();
 
 // start receiving message
 const off = client.on((msg) => {
-    console.log("received message:", msg);
+    console.log('received message:', msg);
 });
 
-// stop reciving mmessage
+// stop reciving message
 off();
 
 // close
@@ -36,11 +38,10 @@ client.stop();
 ```
 
 ### Debug
-Debug messages are produced by https://www.npmjs.com/package/debug
+
+Debuging is provided by https://www.npmjs.com/package/debug
 
 Set environment `DEBUG` to `wcferry:*` to enable debugging logs
-
-
 
 ## Running tasks
 
