@@ -19,7 +19,7 @@
             "inputs": ["{projectRoot}/proto/*"],
             "outputs": ["{projectRoot}/src/lib/proto-generated/*"],
             "options": {
-                "command": "powershell ./gen-proto.ps1",
+                "command": "pwsh ./gen-proto.ps1",
                 "cwd": "{projectRoot}"
             }
         },

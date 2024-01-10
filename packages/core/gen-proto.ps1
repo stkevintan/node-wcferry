@@ -1,3 +1,5 @@
+#Requires -Version 7
+
 $ErrorActionPreference = "stop"
 
 function New-ProtoDir([string]$p) {
@@ -7,7 +9,7 @@ function New-ProtoDir([string]$p) {
     return $p | Resolve-Path
 }
 
-$PROTO_DIR = New-ProtoDir "$PSScriptRoot/proto" 
+$PROTO_DIR = New-ProtoDir "$PSScriptRoot/.proto"
 $PROTO_GENERATED = New-ProtoDir "$PSScriptRoot/src/lib/proto-generated" 
 
 # if powershell 5 or pwsh with platform Win32NT
@@ -20,11 +22,20 @@ else {
     $eol= "`n"
 }
 
+Write-Host Downloading latest pb files
+$PROTO_LINKS = @(
+    'https://raw.githubusercontent.com/lich0821/WeChatFerry/master/WeChatFerry/rpc/proto/wcf.proto',
+    'https://raw.githubusercontent.com/lich0821/WeChatFerry/master/clients/python/roomdata.proto'
+)
+
+$PROTO_LINKS | ForEach-Object {
+    Invoke-WebRequest -Uri "$_" -OutFile "$PROTO_DIR"
+}
+
+Write-Host Compiling pb into ts files
 $PROTOC_GEN_TS_PATH = "$PSScriptRoot/node_modules/.bin/protoc-gen-ts$ext" | Resolve-Path
 $GRPC_TOOLS_NODE_PROTOC_PLUGIN = "$PSScriptRoot/node_modules/.bin/grpc_tools_node_protoc_plugin$ext" | Resolve-Path
 $GRPC_TOOLS_NODE_PROTOC = "$PSScriptRoot/node_modules/.bin/grpc_tools_node_protoc$ext" | Resolve-Path
-
-
 
 # Generate ts codes for each .proto file using the grpc-tools for Node.
 $arguments = @(
@@ -38,6 +49,9 @@ $arguments = @(
 )
 
 Start-Process $GRPC_TOOLS_NODE_PROTOC -ArgumentList $arguments -WorkingDirectory $PSScriptRoot -Wait -NoNewWindow
+
+
+Write-Host "Prepending eslint-disable and @ts-nocheck"
 
 # add @ts-nocheck to the generated files
 Get-ChildItem -Path $PROTO_GENERATED -Filter *.ts -Recurse | ForEach-Object {
