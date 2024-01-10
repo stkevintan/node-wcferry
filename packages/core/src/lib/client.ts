@@ -94,7 +94,7 @@ export class Wcferry {
         return this.msgEventSub.listenerCount("wxmsg");
     }
 
-    async start(): Promise<void> {
+    start() {
         try {
             this.socket.connect(this.createUrl());
             if (this.msgListenerCount > 0) {
@@ -106,7 +106,7 @@ export class Wcferry {
         }
     }
 
-    async stop(): Promise<void> {
+    stop() {
         this.disableMsgReceiving();
         this.socket.close();
     }
@@ -810,7 +810,7 @@ export class Wcferry {
      * @param callback 监听函数
      * @returns 注销监听函数
      */
-    on(callback: (err: Error | undefined, msg: Message) => void): () => void {
+    on(callback: (msg: Message) => void): () => void {
         this.msgEventSub.on("wxmsg", callback);
         if (this.connected && this.msgEventSub.listenerCount("wxmsg") === 1) {
             this.enableMsgReceiving();
