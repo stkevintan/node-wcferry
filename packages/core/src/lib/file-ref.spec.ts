@@ -70,5 +70,5 @@ describe('file-ref', () => {
         await expect(ref.save(cacheDir)).rejects.toThrow();
         const ref2 = new FileRef(`http://${randomUUID()}`);
         await expect(ref2.save(cacheDir)).rejects.toThrow();
-    })
+    });
 });
