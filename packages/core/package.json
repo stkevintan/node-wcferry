@@ -1,6 +1,6 @@
 {
     "name": "@wcferry/core",
-    "version": "0.0.2",
+    "version": "0.0.2-1",
     "scripts": {
         "build:proto": "powershell ./gen-proto.ps1"
     },
