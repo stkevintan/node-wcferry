@@ -3,8 +3,19 @@ import debug from "debug";
 import { wcf } from "./proto-generated/wcf";
 import * as rd from "./proto-generated/roomdata";
 import { EventEmitter } from "events";
-import { createTmpDir, ensureDirSync, sleep, uint8Array2str } from "./utils";
+import {
+    createTmpDir,
+    ensureDirSync,
+    sleep,
+    uint8Array2str,
+    type ToPlainType,
+} from "./utils";
 import { FileRef, VirtualFileRef } from "./file-ref";
+import { Message } from "./message";
+
+export type UserInfo = ToPlainType<wcf.UserInfo>;
+export type Contact = ToPlainType<wcf.RpcContact>;
+export type DbTable = ToPlainType<wcf.DbTable>;
 
 export interface WcferryOptions {
     port?: number;
@@ -126,7 +137,7 @@ export class Wcferry {
     }
 
     /** 获取登录账号个人信息 */
-    getUserInfo(): wcf.UserInfo {
+    getUserInfo(): UserInfo {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_GET_USER_INFO,
         });
@@ -135,7 +146,7 @@ export class Wcferry {
     }
 
     /** 获取完整通讯录 */
-    getContacts(): wcf.RpcContact[] {
+    getContacts(): Contact[] {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_GET_CONTACTS,
         });
@@ -144,7 +155,7 @@ export class Wcferry {
     }
 
     /** 通过 wxid 查询微信号昵称等信息 */
-    getContact(wxid: string): wcf.RpcContact {
+    getContact(wxid: string): Contact {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_GET_CONTACT_INFO,
             str: wxid,
@@ -163,7 +174,7 @@ export class Wcferry {
     }
 
     /** 获取数据库中所有表 */
-    getDbTables(db: string): wcf.DbTable[] {
+    getDbTables(db: string): DbTable[] {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_GET_DB_TABLES,
             str: db,
@@ -221,7 +232,7 @@ export class Wcferry {
     }
 
     /** 获取群聊列表 */
-    getChatRooms(): wcf.RpcContact[] {
+    getChatRooms(): Contact[] {
         const contacts = this.getContacts();
         return contacts.filter((c) => c.wxid.endsWith("@chatroom"));
     }
@@ -789,7 +800,7 @@ export class Wcferry {
             return;
         }
         const rsp = wcf.Response.deserialize(buf);
-        this.msgEventSub.emit("wxmsg", rsp.wxmsg);
+        this.msgEventSub.emit("wxmsg", new Message(rsp.wxmsg));
     }
 
     /**
@@ -799,7 +810,7 @@ export class Wcferry {
      * @param callback 监听函数
      * @returns 注销监听函数
      */
-    on(callback: (err: Error | undefined, msg: wcf.WxMsg) => void): () => void {
+    on(callback: (err: Error | undefined, msg: Message) => void): () => void {
         this.msgEventSub.on("wxmsg", callback);
         if (this.connected && this.msgEventSub.listenerCount("wxmsg") === 1) {
             this.enableMsgReceiving();

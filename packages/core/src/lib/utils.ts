@@ -21,3 +21,8 @@ export function createTmpDir(name = "wcferry") {
 export function uint8Array2str(arr: Uint8Array) {
     return Buffer.from(arr).toString();
 }
+
+// because all the fields are get by getFieldWithDefault, so every fields should have a default value
+export type ToPlainType<T extends { toObject: () => unknown }> = Required<
+    ReturnType<T["toObject"]>
+>;
