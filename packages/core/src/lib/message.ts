@@ -1,5 +1,5 @@
-import { wcf } from "./proto-generated/wcf";
-import { ToPlainType } from "./utils";
+import { wcf } from './proto-generated/wcf';
+import { ToPlainType } from './utils';
 
 export type RawMessage = ToPlainType<wcf.WxMsg>;
 
@@ -23,19 +23,6 @@ export class Message {
     }
 
     isAt(wxid: string) {
-        /*
-          """是否被 @：群消息，在 @ 名单里，并且不是 @ 所有人"""
-        if not self.from_group():
-            return False  # 只有群消息才能 @
-
-        if not re.findall(f"<atuserlist>.*({wxid}).*</atuserlist>", self.xml):
-            return False  # 不在 @ 清单里
-
-        if re.findall(r"@(?:所有人|all|All)", self.content):
-            return False  # 排除 @ 所有人
-
-        return True
-        */
         if (!this.isGroup) {
             return false;
         }

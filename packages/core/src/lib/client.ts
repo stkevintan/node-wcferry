@@ -1,17 +1,17 @@
-import { Socket, SocketOptions } from "@rustup/nng";
-import debug from "debug";
-import { wcf } from "./proto-generated/wcf";
-import * as rd from "./proto-generated/roomdata";
-import { EventEmitter } from "events";
+import { Socket, SocketOptions } from '@rustup/nng';
+import debug from 'debug';
+import { wcf } from './proto-generated/wcf';
+import * as rd from './proto-generated/roomdata';
+import { EventEmitter } from 'events';
 import {
     createTmpDir,
     ensureDirSync,
     sleep,
     uint8Array2str,
     type ToPlainType,
-} from "./utils";
-import { FileRef, VirtualFileRef } from "./file-ref";
-import { Message } from "./message";
+} from './utils';
+import { FileRef, VirtualFileRef } from './file-ref';
+import { Message } from './message';
 
 export type UserInfo = ToPlainType<wcf.UserInfo>;
 export type Contact = ToPlainType<wcf.RpcContact>;
@@ -26,15 +26,15 @@ export interface WcferryOptions {
     recvPyq?: boolean;
 }
 
-const logger = debug("wcferry:client");
+const logger = debug('wcferry:client');
 
 export class Wcferry {
     readonly NotFriend = {
-        fmessage: "朋友推荐消息",
-        medianote: "语音记事本",
-        floatbottle: "漂流瓶",
-        filehelper: "文件传输助手",
-        newsapp: "新闻",
+        fmessage: '朋友推荐消息',
+        medianote: '语音记事本',
+        floatbottle: '漂流瓶',
+        filehelper: '文件传输助手',
+        newsapp: '新闻',
     };
 
     private isMsgReceiving = false;
@@ -45,7 +45,7 @@ export class Wcferry {
     constructor(options?: WcferryOptions) {
         this.options = {
             port: options?.port ?? 10086,
-            host: options?.host ?? "127.0.0.1",
+            host: options?.host ?? '127.0.0.1',
             socketOptions: options?.socketOptions ?? {},
             cacheDir: options?.cacheDir ?? createTmpDir(),
             recvPyq: options?.recvPyq ?? false,
@@ -64,9 +64,9 @@ export class Wcferry {
         return this.isMsgReceiving;
     }
 
-    private createUrl(channel: "cmd" | "msg" = "cmd") {
+    private createUrl(channel: 'cmd' | 'msg' = 'cmd') {
         const url = `tcp://${this.options.host}:${
-            this.options.port + (channel === "cmd" ? 1 : 0)
+            this.options.port + (channel === 'cmd' ? 1 : 0)
         }`;
         logger(`wcf ${channel} url: %s`, url);
         return url;
@@ -91,7 +91,7 @@ export class Wcferry {
     }
 
     private get msgListenerCount() {
-        return this.msgEventSub.listenerCount("wxmsg");
+        return this.msgEventSub.listenerCount('wxmsg');
     }
 
     start() {
@@ -101,7 +101,7 @@ export class Wcferry {
                 this.enableMsgReceiving();
             }
         } catch (err) {
-            logger("cannot connect to wcf RPC server");
+            logger('cannot connect to wcf RPC server');
             throw err;
         }
     }
@@ -234,7 +234,7 @@ export class Wcferry {
     /** 获取群聊列表 */
     getChatRooms(): Contact[] {
         const contacts = this.getContacts();
-        return contacts.filter((c) => c.wxid.endsWith("@chatroom"));
+        return contacts.filter((c) => c.wxid.endsWith('@chatroom'));
     }
 
     /**
@@ -245,8 +245,8 @@ export class Wcferry {
         const contacts = this.getContacts();
         return contacts.filter(
             (c) =>
-                !c.wxid.endsWith("@chatroom") &&
-                !c.wxid.startsWith("gh_") &&
+                !c.wxid.endsWith('@chatroom') &&
+                !c.wxid.startsWith('gh_') &&
                 !Object.hasOwn(this.NotFriend, c.wxid)
         );
     }
@@ -265,7 +265,7 @@ export class Wcferry {
             return {};
         }
         const [room] = this.dbSqlQuery(
-            "MicroMsg.db",
+            'MicroMsg.db',
             `SELECT RoomData FROM ChatRoom WHERE ChatRoomName = '${roomid}';`
         );
         if (!room) {
@@ -274,16 +274,16 @@ export class Wcferry {
         }
 
         const r = rd.com.iamteer.wcf.RoomData.deserialize(
-            room["RoomData"] as Buffer
+            room['RoomData'] as Buffer
         );
 
         const userRds = this.dbSqlQuery(
-            "MicroMsg.db",
-            "SELECT UserName, NickName FROM Contact;"
+            'MicroMsg.db',
+            'SELECT UserName, NickName FROM Contact;'
         );
 
         const userDict = Object.fromEntries(
-            userRds.map((u) => [u["UserName"], u["NickName"]] as const)
+            userRds.map((u) => [u['UserName'], u['NickName']] as const)
         );
 
         return Object.fromEntries(
@@ -302,22 +302,22 @@ export class Wcferry {
      */
     getAliasInChatRoom(wxid: string, roomid: string): string | undefined {
         const [row] = this.dbSqlQuery(
-            "MicroMsg.db",
+            'MicroMsg.db',
             `SELECT NickName FROM Contact WHERE UserName = '${wxid}';`
         );
-        const nickName = row?.["NickName"];
+        const nickName = row?.['NickName'];
         if (!nickName) {
             return undefined;
         }
         const [room] = this.dbSqlQuery(
-            "MicroMsg.db",
+            'MicroMsg.db',
             `SELECT RoomData FROM ChatRoom WHERE ChatRoomName = '${roomid}';`
         );
         if (!room) {
             return undefined;
         }
         const roomData = rd.com.iamteer.wcf.RoomData.deserialize(
-            room["RoomData"] as Buffer
+            room['RoomData'] as Buffer
         );
         return roomData.members.find((m) => m.wxid === wxid)?.name;
     }
@@ -333,7 +333,7 @@ export class Wcferry {
             func: wcf.Functions.FUNC_INV_ROOM_MEMBERS,
             m: new wcf.MemberMgmt({
                 roomid,
-                wxids: wxids.join(",").replaceAll(" ", ""),
+                wxids: wxids.join(',').replaceAll(' ', ''),
             }),
         });
         const rsp = this.sendRequest(req);
@@ -351,7 +351,7 @@ export class Wcferry {
             func: wcf.Functions.FUNC_ADD_ROOM_MEMBERS,
             m: new wcf.MemberMgmt({
                 roomid,
-                wxids: wxids.join(",").replaceAll(" ", ""),
+                wxids: wxids.join(',').replaceAll(' ', ''),
             }),
         });
         const rsp = this.sendRequest(req);
@@ -369,7 +369,7 @@ export class Wcferry {
             func: wcf.Functions.FUNC_DEL_ROOM_MEMBERS,
             m: new wcf.MemberMgmt({
                 roomid,
-                wxids: wxids.join(",").replaceAll(" ", ""),
+                wxids: wxids.join(',').replaceAll(' ', ''),
             }),
         });
         const rsp = this.sendRequest(req);
@@ -546,7 +546,7 @@ export class Wcferry {
      * @returns 0 为成功，其他失败
      */
     sendRichText(
-        desc: Omit<ReturnType<wcf.RichText["toObject"]>, "receiver">,
+        desc: Omit<ReturnType<wcf.RichText['toObject']>, 'receiver'>,
         receiver: string
     ): number {
         const req = new wcf.Request({
@@ -601,7 +601,7 @@ export class Wcferry {
             await sleep();
             return this.getAudioMsg(msgid, dir, times - 1);
         }
-        throw new Error("Timeout: get audio msg");
+        throw new Error('Timeout: get audio msg');
     }
 
     /**
@@ -624,7 +624,7 @@ export class Wcferry {
             await sleep();
             return this.getOCRResult(extra, times - 1);
         }
-        throw new Error("Timeout: get ocr result");
+        throw new Error('Timeout: get ocr result');
     }
 
     /**
@@ -680,7 +680,7 @@ export class Wcferry {
         times = 30
     ): Promise<string> {
         if (this.downloadAttach(msgid, undefined, extra) !== 0) {
-            return Promise.reject("Failed to download attach");
+            return Promise.reject('Failed to download attach');
         }
         for (let cnt = 0; cnt < times; cnt++) {
             const path = this.decryptImage(extra, dir);
@@ -689,7 +689,7 @@ export class Wcferry {
             }
             sleep();
         }
-        return Promise.reject("Failed to decrypt image");
+        return Promise.reject('Failed to decrypt image');
     }
 
     /**
@@ -761,7 +761,7 @@ export class Wcferry {
         } catch (err) {
             this.msgDispose?.();
             this.isMsgReceiving = false;
-            logger("enable message receiving error: %O", err);
+            logger('enable message receiving error: %O', err);
             return false;
         }
     }
@@ -787,7 +787,7 @@ export class Wcferry {
 
     private receiveMessage() {
         const disposable = Socket.recvMessage(
-            this.createUrl("msg"),
+            this.createUrl('msg'),
             null,
             this.messageCallback.bind(this)
         );
@@ -796,11 +796,11 @@ export class Wcferry {
 
     private messageCallback(err: unknown | undefined, buf: Buffer) {
         if (err) {
-            logger("error while receiving message: %O", err);
+            logger('error while receiving message: %O', err);
             return;
         }
         const rsp = wcf.Response.deserialize(buf);
-        this.msgEventSub.emit("wxmsg", new Message(rsp.wxmsg));
+        this.msgEventSub.emit('wxmsg', new Message(rsp.wxmsg));
     }
 
     /**
@@ -811,18 +811,18 @@ export class Wcferry {
      * @returns 注销监听函数
      */
     on(callback: (msg: Message) => void): () => void {
-        this.msgEventSub.on("wxmsg", callback);
-        if (this.connected && this.msgEventSub.listenerCount("wxmsg") === 1) {
+        this.msgEventSub.on('wxmsg', callback);
+        if (this.connected && this.msgEventSub.listenerCount('wxmsg') === 1) {
             this.enableMsgReceiving();
         }
         return () => {
             if (
                 this.connected &&
-                this.msgEventSub.listenerCount("wxmsg") === 1
+                this.msgEventSub.listenerCount('wxmsg') === 1
             ) {
                 this.disableMsgReceiving();
             }
-            this.msgEventSub.off("wxmsg", callback);
+            this.msgEventSub.off('wxmsg', callback);
         };
     }
 }

@@ -7,10 +7,10 @@
  * You might need to authenticate with NPM before running this script.
  */
 
-import { execSync } from "child_process";
-import { readFileSync, writeFileSync } from "fs";
+import { execSync } from 'child_process';
+import { readFileSync, writeFileSync } from 'fs';
 
-import devkit from "@nx/devkit";
+import devkit from '@nx/devkit';
 const { readCachedProjectGraph } = devkit;
 
 function invariant(condition, message) {
@@ -23,9 +23,9 @@ function invariant(condition, message) {
 // Executing publish script: node path/to/publish.mjs {name} --version {version} --tag {tag}
 // Default "tag" to "next" so we won't publish the "latest" tag by accident.
 let [, , name, version, tag] = process.argv;
-console.log("get version: %s, tag: %s", version, tag);
+console.log('get version: %s, tag: %s', version, tag);
 
-version = version.replace(/^core@/, "");
+version = version.replace(/^core@/, '');
 
 // A simple SemVer validation to validate the version
 const validVersion = /^\d+\.\d+\.\d+(-\w+\.\d+)?/;
@@ -63,5 +63,5 @@ if (version) {
 }
 
 // Execute "npm publish" to publish
-const tagArgs = tag ? `--tag ${tag}` : "";
+const tagArgs = tag ? `--tag ${tag}` : '';
 execSync(`npm publish --access public ${tagArgs}`);

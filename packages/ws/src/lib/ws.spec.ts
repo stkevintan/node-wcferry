@@ -1,7 +1,7 @@
-import { ws } from "./ws";
+import { ws } from './ws';
 
-describe("ws", () => {
-    it("should work", () => {
-        expect(ws()).toEqual("ws");
+describe('ws', () => {
+    it('should work', () => {
+        expect(ws()).toEqual('ws');
     });
 });

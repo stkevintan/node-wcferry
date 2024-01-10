@@ -1,1 +1,1 @@
-export * from "./lib/ws";
+export * from './lib/ws';

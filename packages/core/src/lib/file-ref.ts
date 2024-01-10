@@ -1,16 +1,16 @@
-import { randomUUID } from "crypto";
-import { cp, rm, symlink, writeFile } from "fs/promises";
-import mime from "mime";
-import path from "path";
-import { URL } from "url";
-import { ensureDirSync } from "./utils";
-import { createWriteStream, existsSync } from "fs";
-import assert from "assert";
-import type { OutgoingHttpHeaders } from "http";
+import { randomUUID } from 'crypto';
+import { cp, rm, symlink, writeFile } from 'fs/promises';
+import mime from 'mime';
+import path from 'path';
+import { URL } from 'url';
+import { ensureDirSync } from './utils';
+import { createWriteStream, existsSync } from 'fs';
+import assert from 'assert';
+import type { OutgoingHttpHeaders } from 'http';
 
 const headers = {
-    "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
+    'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36',
 };
 
 const base64pattern = /^data:(.*);base64,(.*)/;
@@ -46,7 +46,7 @@ export class FileRef implements VirtualFileRef {
      * @returns
      */
     async save(useSymLink = true): Promise<string> {
-        if (typeof this.location === "object") {
+        if (typeof this.location === 'object') {
             return await this.location.save();
         }
 
@@ -66,7 +66,7 @@ export class FileRef implements VirtualFileRef {
     }
 
     async del(): Promise<void> {
-        if (typeof this.location === "object") {
+        if (typeof this.location === 'object') {
             return await this.location.del();
         }
         if (this.saved) {
@@ -81,7 +81,7 @@ export class FileRef implements VirtualFileRef {
         if (ext) {
             return basename;
         }
-        ext = "dat";
+        ext = 'dat';
         if (opt?.mimeType) {
             ext = mime.getExtension(opt.mimeType) ?? ext;
         }
@@ -92,7 +92,7 @@ export class FileRef implements VirtualFileRef {
         const extname = path.extname(name);
         const basename = path.basename(name, extname);
         for (let i = 0; ; i++) {
-            const suffix = i === 0 ? "" : `-${i}`;
+            const suffix = i === 0 ? '' : `-${i}`;
             const p = path.join(this.saveDir, `${basename}${suffix}${extname}`);
             if (!existsSync(p)) {
                 return p;
@@ -104,10 +104,10 @@ export class FileRef implements VirtualFileRef {
         mimeType: string,
         content: string
     ): Promise<string> {
-        const binary = Buffer.from(content, "base64").toString("binary");
+        const binary = Buffer.from(content, 'base64').toString('binary');
         const name = this.getName({ mimeType });
         const fullpath = this.getSavingPath(name);
-        await writeFile(fullpath, binary, "binary");
+        await writeFile(fullpath, binary, 'binary');
         return (this.saved = fullpath);
     }
 
@@ -115,17 +115,17 @@ export class FileRef implements VirtualFileRef {
         const basename = path.basename(url.pathname);
         let fullpath: string | undefined;
         const http =
-            url.protocol === "https:"
-                ? await import("https")
-                : await import("http");
+            url.protocol === 'https:'
+                ? await import('https')
+                : await import('http');
         return await new Promise<string>((resolve, reject) => {
             http.get(url, { headers }, (response) => {
                 const probeName =
-                    response.headers["content-disposition"]?.match(
+                    response.headers['content-disposition']?.match(
                         /attachment; filename="?(.+[^"])"?$/i
                     )?.[1] ?? basename;
 
-                const mimeType = response.headers["content-type"];
+                const mimeType = response.headers['content-type'];
                 const name = this.getName({
                     mimeType,
                     inferredName: probeName,
@@ -134,11 +134,11 @@ export class FileRef implements VirtualFileRef {
                 const file = createWriteStream(fullpath);
                 response.pipe(file);
 
-                file.on("finish", () => {
+                file.on('finish', () => {
                     file.close();
                     resolve((this.saved = fullpath!));
                 });
-            }).on("error", (error) => {
+            }).on('error', (error) => {
                 if (fullpath) {
                     rm(fullpath, { force: true }).finally(() => {
                         reject(error.message);
@@ -151,7 +151,7 @@ export class FileRef implements VirtualFileRef {
     }
 
     private async saveFromFile(useSymLink = true): Promise<string> {
-        assert(typeof this.location === "string", "impossible");
+        assert(typeof this.location === 'string', 'impossible');
         const name = this.getName({
             inferredName: path.basename(this.location),
         });

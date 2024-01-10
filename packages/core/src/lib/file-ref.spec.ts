@@ -1,15 +1,15 @@
-import { lstat, rm } from "fs/promises";
-import { createTmpDir, ensureDirSync } from "./utils";
-import path from "path";
-import { FileRef } from "./file-ref";
-import { existsSync } from "fs";
-import { randomUUID } from "crypto";
+import { lstat, rm } from 'fs/promises';
+import { createTmpDir, ensureDirSync } from './utils';
+import path from 'path';
+import { FileRef } from './file-ref';
+import { existsSync } from 'fs';
+import { randomUUID } from 'crypto';
 
-describe("file-ref", () => {
-    const cacheDir = createTmpDir("wcferry-test");
+describe('file-ref', () => {
+    const cacheDir = createTmpDir('wcferry-test');
     const testImagePath = path.join(
         __dirname,
-        "../../fixtures/test_image.jpeg"
+        '../../fixtures/test_image.jpeg'
     );
     const testUrl = `https://avatars.githubusercontent.com/u/5887203`;
     const testBase64 = `data:image/gif;base64,R0lGODlhAQABAAAAACw=`;
@@ -20,7 +20,7 @@ describe("file-ref", () => {
         await rm(cacheDir, { recursive: true, force: true });
     });
 
-    it("local file", async () => {
+    it('local file', async () => {
         const ref = new FileRef(testImagePath, cacheDir);
         const p = await ref.save();
         const copied = path.join(cacheDir, path.basename(testImagePath));
@@ -42,7 +42,7 @@ describe("file-ref", () => {
         expect(stat3.isSymbolicLink()).toBe(false);
     });
 
-    it("url file", async () => {
+    it('url file', async () => {
         const ref = new FileRef(testUrl, cacheDir);
         const p = await ref.save();
         expect(path.dirname(p)).toBe(cacheDir);
@@ -50,7 +50,7 @@ describe("file-ref", () => {
         expect(existsSync(p)).toBeTruthy();
     });
 
-    it("base64 file", async () => {
+    it('base64 file', async () => {
         const ref = new FileRef(testBase64, cacheDir);
         const p = await ref.save();
         expect(path.dirname(p)).toBe(cacheDir);
@@ -58,7 +58,7 @@ describe("file-ref", () => {
         expect(existsSync(p)).toBeTruthy();
     });
 
-    it("can auto resolve conflicts", async () => {
+    it('can auto resolve conflicts', async () => {
         const name = randomUUID();
         const ref1 = new FileRef(testBase64, cacheDir, { name });
         const ref2 = new FileRef(testBase64, cacheDir, { name });

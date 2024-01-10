@@ -1,3 +1,3 @@
 export function ws(): string {
-    return "ws";
+    return 'ws';
 }
