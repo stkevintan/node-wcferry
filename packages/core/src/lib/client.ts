@@ -155,7 +155,7 @@ export class Wcferry {
     }
 
     /** 通过 wxid 查询微信号昵称等信息 */
-    getContact(wxid: string): Contact {
+    getContact(wxid: string): Contact | undefined {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_GET_CONTACT_INFO,
             str: wxid,

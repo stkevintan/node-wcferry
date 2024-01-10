@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@swc/helpers':
-        specifier: ~0.5.2
+        specifier: ~0.5.3
         version: 0.5.3
       debug:
         specifier: ^4.3.4
@@ -34,13 +34,13 @@ importers:
         specifier: ^17.2.8
         version: 17.2.8(@swc-node/register@1.6.8)(@swc/core@1.3.102)(debug@4.3.4)
       '@swc-node/register':
-        specifier: ~1.6.7
+        specifier: ~1.6.8
         version: 1.6.8(@swc/core@1.3.102)(typescript@5.2.2)
       '@swc/cli':
-        specifier: ~0.1.62
+        specifier: ~0.1.63
         version: 0.1.63(@swc/core@1.3.102)
       '@swc/core':
-        specifier: ~1.3.85
+        specifier: ~1.3.102
         version: 1.3.102(@swc/helpers@0.5.3)
       '@types/debug':
         specifier: ^4.1.12
@@ -55,19 +55,19 @@ importers:
         specifier: ~0.34.6
         version: 0.34.6(vitest@0.34.6)
       '@vitest/ui':
-        specifier: ~0.34.6
+        specifier: ~0.34.7
         version: 0.34.7(vitest@0.34.6)
       nx:
         specifier: 17.2.8
         version: 17.2.8(@swc-node/register@1.6.8)(@swc/core@1.3.102)(debug@4.3.4)
       prettier:
-        specifier: ^2.6.2
+        specifier: ^2.8.8
         version: 2.8.8
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
       vite:
-        specifier: ^5.0.0
+        specifier: ^5.0.11
         version: 5.0.11(@types/node@18.7.1)
       vitest:
         specifier: ~0.34.6
@@ -3109,7 +3109,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001576
-      electron-to-chromium: 1.4.625
+      electron-to-chromium: 1.4.626
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.2)
     dev: true
@@ -3128,7 +3128,7 @@ packages:
   /builtins@5.0.1:
     resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
     dependencies:
-      semver: 7.5.4
+      semver: 7.5.3
     dev: true
 
   /cac@6.7.14:
@@ -3467,8 +3467,8 @@ packages:
       jake: 10.8.7
     dev: true
 
-  /electron-to-chromium@1.4.625:
-    resolution: {integrity: sha512-DENMhh3MFgaPDoXWrVIqSPInQoLImywfCwrSmVl3cf9QHzoZSiutHwGaB/Ql3VkqcQV30rzgdM+BjKqBAJxo5Q==}
+  /electron-to-chromium@1.4.626:
+    resolution: {integrity: sha512-f7/be56VjRRQk+Ric6PmIrEtPcIqsn3tElyAu9Sh6egha2VLJ82qwkcOdcnT06W+Pb6RUulV1ckzrGbKzVcTHg==}
     dev: true
 
   /emoji-regex@8.0.0:
@@ -3940,6 +3940,17 @@ packages:
 
   /glob@7.1.4:
     resolution: {integrity: sha512-hkLPepehmnKk41pUGm3sYxoFs/umurYfYJCerbXEyFIWcAzvpipAgVkBqqT9RBKMGjnq6kMuyYwha6csxbiM1A==}
+    dependencies:
+      fs.realpath: 1.0.0
+      inflight: 1.0.6
+      inherits: 2.0.4
+      minimatch: 3.1.2
+      once: 1.4.0
+      path-is-absolute: 1.0.1
+    dev: true
+
+  /glob@7.2.3:
+    resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
@@ -4601,7 +4612,7 @@ packages:
     dependencies:
       hosted-git-info: 7.0.1
       proc-log: 3.0.0
-      semver: 7.5.4
+      semver: 7.5.3
       validate-npm-package-name: 5.0.0
     dev: true
 
@@ -5043,7 +5054,7 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
     dependencies:
-      glob: 7.1.4
+      glob: 7.2.3
     dev: true
 
   /rollup@4.9.4:
@@ -5335,7 +5346,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       '@istanbuljs/schema': 0.1.3
-      glob: 7.1.4
+      glob: 7.2.3
       minimatch: 3.1.2
     dev: true
 

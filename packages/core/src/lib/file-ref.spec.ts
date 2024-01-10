@@ -60,8 +60,8 @@ describe("file-ref", () => {
 
     it("can auto resolve conflicts", async () => {
         const name = randomUUID();
-        const ref1 = new FileRef(testBase64, cacheDir, name);
-        const ref2 = new FileRef(testBase64, cacheDir, name);
+        const ref1 = new FileRef(testBase64, cacheDir, { name });
+        const ref2 = new FileRef(testBase64, cacheDir, { name });
         const p1 = await ref1.save();
         const p2 = await ref2.save();
         expect(path.basename(p1)).toBe(`${name}.gif`);

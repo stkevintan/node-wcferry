@@ -6,6 +6,7 @@ import { URL } from "url";
 import { ensureDirSync } from "./utils";
 import { createWriteStream, existsSync } from "fs";
 import assert from "assert";
+import type { OutgoingHttpHeaders } from "http";
 
 const headers = {
     "User-Agent":
@@ -26,7 +27,10 @@ export class FileRef implements VirtualFileRef {
     constructor(
         private readonly location: string | VirtualFileRef,
         private readonly saveDir: string,
-        private readonly name?: string
+        private readonly options: {
+            name?: string;
+            headers?: OutgoingHttpHeaders;
+        } = {}
     ) {
         ensureDirSync(saveDir);
     }
@@ -42,13 +46,13 @@ export class FileRef implements VirtualFileRef {
      * @returns
      */
     async save(useSymLink = true): Promise<string> {
-        if (this.saved) {
-            return this.saved;
-        }
         if (typeof this.location === "object") {
             return await this.location.save();
         }
 
+        if (this.saved) {
+            return this.saved;
+        }
         if (this.isUrl(this.location)) {
             return await this.saveFromUrl(new URL(this.location));
         }
@@ -62,6 +66,9 @@ export class FileRef implements VirtualFileRef {
     }
 
     async del(): Promise<void> {
+        if (typeof this.location === "object") {
+            return await this.location.del();
+        }
         if (this.saved) {
             await rm(this.saved, { force: true });
             this.saved = undefined;
@@ -69,7 +76,7 @@ export class FileRef implements VirtualFileRef {
     }
 
     private getName(opt?: { mimeType?: string; inferredName?: string }) {
-        const basename = this.name ?? opt?.inferredName ?? randomUUID();
+        const basename = this.options.name ?? opt?.inferredName ?? randomUUID();
         let ext = path.extname(basename);
         if (ext) {
             return basename;
