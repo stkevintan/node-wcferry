@@ -1,18 +1,46 @@
 # Wcferry
 
+[![CI](https://github.com/stkevintan/node-wcferry/actions/workflows/ci.yml/badge.svg)](https://github.com/stkevintan/node-wcferry/actions/workflows/ci.yml) 
+[![npm version](https://badge.fury.io/js/@wcferry%2Fcore.svg)](https://badge.fury.io/js/@wcferry%2Fcore)
+
 A node impl of wcferry nanomsg clients:
 
 1. core: the main lib of wcferry
 2. ws: a websocket api server (WIP)
 3. http: a http api server (WIP)
 
-## Generate code
+## Install
+```
+npm i @wcferry/core
+```
 
-If you happen to use Nx plugins, you can leverage code generators that might come with it.
+### Usage
+```ts
+import { Wcferry } from '@wcferry/core'
 
-Run `nx list` to get a list of available plugins and whether they have generators. Then run `nx list <plugin-name>` to see what generators are available.
+const client = new Wcferry({ port: 10086 });
+client.start();
 
-Learn more about [Nx generators on the docs](https://nx.dev/plugin-features/use-code-generators).
+const isLogin = client.isLogin();
+
+// start receiving message
+const off = client.on((msg) => {
+    console.log("received message:", msg);
+});
+
+// stop reciving mmessage
+off();
+
+// close
+client.stop();
+```
+
+### Debug
+Debug messages are produced by https://www.npmjs.com/package/debug
+
+Set environment `DEBUG` to `wcferry:*` to enable debugging logs
+
+
 
 ## Running tasks
 
