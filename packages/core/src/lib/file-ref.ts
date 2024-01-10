@@ -1,3 +1,4 @@
+import os from 'os';
 import { randomUUID } from 'crypto';
 import { cp, rm, symlink, writeFile } from 'fs/promises';
 import mime from 'mime';
@@ -13,66 +14,63 @@ const headers = {
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36',
 };
 
-const base64pattern = /^data:(.*);base64,(.*)/;
-
-export interface VirtualFileRef {
-    save(): Promise<string>;
-    del(): Promise<void>;
+export interface FileSavableInterface {
+    save(dir?: string): Promise<{ path: string; discard: () => Promise<void> }>;
 }
 
-export class FileRef implements VirtualFileRef {
+export class FileRef implements FileSavableInterface {
     /**
-     * @param location location of the resource. can be a local path, a link starts with `http(s)://` a base64 string starts with `data:<mimetype>;base64,xxxxx` or another instance of VirtualFileRef
+     * @param location location of the resource. can be
+     * - a local path
+     * - a link starts with `http(s)://`
+     * - a buffer
+     *
+     * Note: base64 string can be convert to buffer by: `Buffer.from('content', 'base64')`
+     * Note: if input is a Buffer, it would be nice to have a name with correct extension in the options,
+     * or a common name `<uuid>.dat` will be used
      */
     constructor(
-        private readonly location: string | VirtualFileRef,
-        private readonly saveDir: string,
+        private readonly location: string | Buffer,
         private readonly options: {
             name?: string;
             headers?: OutgoingHttpHeaders;
         } = {}
-    ) {
-        ensureDirSync(saveDir);
-    }
+    ) {}
 
     private isUrl(loc: string) {
         return /^https?:\/\//.test(loc);
     }
-    private saved?: string;
 
     /**
-     * save the file into saveDir with name and extension inferred
-     * @param useSymLink use symlink instead of copy when location points to a local file.
+     * save the file into dir with name and extension inferred
+     * @param dir the saving directory, defaults to `os.tmpdir()`
+     * @param useSymLink use symlink instead of copy when location points to a local file
      * @returns
      */
-    async save(useSymLink = true): Promise<string> {
-        if (typeof this.location === 'object') {
-            return await this.location.save();
-        }
-
-        if (this.saved) {
-            return this.saved;
+    async save(
+        dir = os.tmpdir(),
+        useSymLink = true
+    ): Promise<{ path: string; discard: () => Promise<void> }> {
+        ensureDirSync(dir);
+        if (Buffer.isBuffer(this.location)) {
+            return this.wrapWithDiscard(
+                await this.saveFromBase64(dir, this.location)
+            );
         }
         if (this.isUrl(this.location)) {
-            return await this.saveFromUrl(new URL(this.location));
+            const p = await this.saveFromUrl(dir, new URL(this.location));
+            return this.wrapWithDiscard(p);
         }
 
-        const match = this.location.match(base64pattern);
-        if (match) {
-            return await this.saveFromBase64(match[1], match[2]);
-        }
-
-        return await this.saveFromFile(useSymLink);
+        const p = await this.saveFromFile(dir, useSymLink);
+        return this.wrapWithDiscard(p);
     }
 
-    async del(): Promise<void> {
-        if (typeof this.location === 'object') {
-            return await this.location.del();
-        }
-        if (this.saved) {
-            await rm(this.saved, { force: true });
-            this.saved = undefined;
-        }
+    wrapWithDiscard(p: string) {
+        return {
+            path: p,
+            discard: () => rm(p, { force: true }),
+        };
     }
 
     private getName(opt?: { mimeType?: string; inferredName?: string }) {
@@ -88,30 +86,27 @@ export class FileRef implements VirtualFileRef {
         return `${basename}.${ext}`;
     }
 
-    private getSavingPath(name: string): string {
+    private getSavingPath(dir: string, name: string): string {
         const extname = path.extname(name);
         const basename = path.basename(name, extname);
         for (let i = 0; ; i++) {
             const suffix = i === 0 ? '' : `-${i}`;
-            const p = path.join(this.saveDir, `${basename}${suffix}${extname}`);
+            const p = path.join(dir, `${basename}${suffix}${extname}`);
             if (!existsSync(p)) {
                 return p;
             }
         }
     }
 
-    private async saveFromBase64(
-        mimeType: string,
-        content: string
-    ): Promise<string> {
-        const binary = Buffer.from(content, 'base64').toString('binary');
-        const name = this.getName({ mimeType });
-        const fullpath = this.getSavingPath(name);
+    private async saveFromBase64(dir: string, buffer: Buffer): Promise<string> {
+        const binary = buffer.toString('binary');
+        const name = this.getName();
+        const fullpath = this.getSavingPath(dir, name);
         await writeFile(fullpath, binary, 'binary');
-        return (this.saved = fullpath);
+        return fullpath;
     }
 
-    private async saveFromUrl(url: URL): Promise<string> {
+    private async saveFromUrl(dir: string, url: URL): Promise<string> {
         const basename = path.basename(url.pathname);
         let fullpath: string | undefined;
         const http =
@@ -130,13 +125,13 @@ export class FileRef implements VirtualFileRef {
                     mimeType,
                     inferredName: probeName,
                 });
-                fullpath = this.getSavingPath(name);
+                fullpath = this.getSavingPath(dir, name);
                 const file = createWriteStream(fullpath);
                 response.pipe(file);
 
                 file.on('finish', () => {
                     file.close();
-                    resolve((this.saved = fullpath!));
+                    resolve(fullpath!);
                 });
             }).on('error', (error) => {
                 if (fullpath) {
@@ -150,19 +145,27 @@ export class FileRef implements VirtualFileRef {
         });
     }
 
-    private async saveFromFile(useSymLink = true): Promise<string> {
+    private async saveFromFile(
+        dir: string,
+        useSymLink = true
+    ): Promise<string> {
         assert(typeof this.location === 'string', 'impossible');
+        if (!existsSync(this.location)) {
+            return Promise.reject(
+                new Error(`Source file ${this.location} doesn't exist`)
+            );
+        }
         const name = this.getName({
             inferredName: path.basename(this.location),
         });
-        const saved = this.getSavingPath(name);
+        const saved = this.getSavingPath(dir, name);
 
         if (useSymLink) {
             await symlink(this.location, saved);
-            return (this.saved = saved);
+            return saved;
         } else {
             await cp(this.location, saved, { force: true });
-            return (this.saved = saved);
+            return saved;
         }
     }
 }

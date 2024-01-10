@@ -1,7 +1,6 @@
 import { Wcferry } from './client';
 
-// fixme: need a working backend
-describe.skip('wcf client', () => {
+describe.skip('wcf client e2e', () => {
     let client: Wcferry;
     beforeEach(async () => {
         client = new Wcferry();

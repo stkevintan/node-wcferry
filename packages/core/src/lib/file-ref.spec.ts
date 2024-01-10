@@ -12,7 +12,7 @@ describe('file-ref', () => {
         '../../fixtures/test_image.jpeg'
     );
     const testUrl = `https://avatars.githubusercontent.com/u/5887203`;
-    const testBase64 = `data:image/gif;base64,R0lGODlhAQABAAAAACw=`;
+    const testBase64 = Buffer.from(`R0lGODlhAQABAAAAACw=`, 'base64');
     beforeEach(() => {
         ensureDirSync(cacheDir);
     });
@@ -20,51 +20,55 @@ describe('file-ref', () => {
         await rm(cacheDir, { recursive: true, force: true });
     });
 
-    it('local file', async () => {
-        const ref = new FileRef(testImagePath, cacheDir);
-        const p = await ref.save();
+    it('save local file', async () => {
+        const ref = new FileRef(testImagePath);
+        const p = await ref.save(cacheDir);
         const copied = path.join(cacheDir, path.basename(testImagePath));
-        expect(p).toBe(copied);
+        expect(p.path).toBe(copied);
         expect(existsSync(copied)).toBeTruthy();
         const stat = await lstat(copied);
         expect(stat.isSymbolicLink()).toBe(true);
-        // duplicated call won't change any thing.
-        const p2 = await ref.save(false);
-        expect(p2).toBe(copied);
-        const stat2 = await lstat(copied);
-        expect(stat2.isSymbolicLink()).toBe(true);
-        // we have to delete it.
-        await ref.del();
-        expect(existsSync(copied)).toBeFalsy();
-        const p3 = await ref.save(false);
-        expect(p3).toBe(copied);
+        await p.discard();
+        const p2 = await ref.save(cacheDir, false);
+        expect(p2.path).toBe(copied);
         const stat3 = await lstat(copied);
         expect(stat3.isSymbolicLink()).toBe(false);
     });
 
-    it('url file', async () => {
-        const ref = new FileRef(testUrl, cacheDir);
-        const p = await ref.save();
-        expect(path.dirname(p)).toBe(cacheDir);
-        expect(path.basename(p)).toBe(`5887203.jpeg`);
-        expect(existsSync(p)).toBeTruthy();
+    it('save url', async () => {
+        const ref = new FileRef(testUrl);
+        const p = await ref.save(cacheDir);
+        expect(path.dirname(p.path)).toBe(cacheDir);
+        expect(path.basename(p.path)).toBe(`5887203.jpeg`);
+        expect(existsSync(p.path)).toBeTruthy();
     });
 
-    it('base64 file', async () => {
-        const ref = new FileRef(testBase64, cacheDir);
-        const p = await ref.save();
-        expect(path.dirname(p)).toBe(cacheDir);
-        expect(path.basename(p)).toMatch(/.gif$/);
-        expect(existsSync(p)).toBeTruthy();
+    it('save base64', async () => {
+        const ref = new FileRef(testBase64);
+        const ref2 = new FileRef(testBase64, {
+            name: 'image.gif',
+        });
+        const p = await ref.save(cacheDir);
+        const p2 = await ref2.save(cacheDir);
+        expect(path.dirname(p.path)).toBe(cacheDir);
+        expect(path.basename(p.path)).toMatch(/.dat$/);
+        expect(path.extname(p2.path)).toBe('.gif');
+        expect(existsSync(p.path)).toBeTruthy();
     });
 
     it('can auto resolve conflicts', async () => {
         const name = randomUUID();
-        const ref1 = new FileRef(testBase64, cacheDir, { name });
-        const ref2 = new FileRef(testBase64, cacheDir, { name });
-        const p1 = await ref1.save();
-        const p2 = await ref2.save();
-        expect(path.basename(p1)).toBe(`${name}.gif`);
-        expect(path.basename(p2)).toBe(`${name}-1.gif`);
+        const ref = new FileRef(testBase64, { name });
+        const p1 = await ref.save(cacheDir);
+        const p2 = await ref.save(cacheDir);
+        expect(path.basename(p1.path, '.dat')).toBe(name);
+        expect(path.basename(p2.path, '.dat')).toBe(`${name}-1`);
     });
+
+    it('should error when location is invalid', async () => {
+        const ref = new FileRef(randomUUID());
+        await expect(ref.save(cacheDir)).rejects.toThrow();
+        const ref2 = new FileRef(`http://${randomUUID()}`);
+        await expect(ref2.save(cacheDir)).rejects.toThrow();
+    })
 });

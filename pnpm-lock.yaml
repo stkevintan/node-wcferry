@@ -73,6 +73,37 @@ importers:
         specifier: ~0.34.6
         version: 0.34.6(@vitest/ui@0.34.7)
 
+  dist/packages/core:
+    dependencies:
+      '@rustup/nng':
+        specifier: ^0.1.2
+        version: 0.1.2
+      '@swc/helpers':
+        specifier: ~0.5.2
+        version: 0.5.3
+      debug:
+        specifier: ^4.3.4
+        version: 4.3.4
+      google-protobuf:
+        specifier: ^3.21.2
+        version: 3.21.2
+      mime:
+        specifier: ^3.0.0
+        version: 3.0.0
+    devDependencies:
+      '@types/google-protobuf':
+        specifier: ^3.15.12
+        version: 3.15.12
+      '@types/mime':
+        specifier: ^3.0.4
+        version: 3.0.4
+      grpc-tools:
+        specifier: ^1.12.4
+        version: 1.12.4
+      protoc-gen-ts:
+        specifier: ^0.8.7
+        version: 0.8.7
+
   packages/core:
     dependencies:
       '@rustup/nng':

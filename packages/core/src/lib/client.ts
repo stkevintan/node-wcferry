@@ -10,7 +10,7 @@ import {
     uint8Array2str,
     type ToPlainType,
 } from './utils';
-import { FileRef, VirtualFileRef } from './file-ref';
+import { FileRef, FileSavableInterface } from './file-ref';
 import { Message } from './message';
 
 export type UserInfo = ToPlainType<wcf.UserInfo>;
@@ -21,6 +21,7 @@ export interface WcferryOptions {
     port?: number;
     host?: string;
     socketOptions?: SocketOptions;
+    /** the cache dir to hold temp files, defaults to `os.tmpdir()/wcferry`  */
     cacheDir?: string;
     // 当使用wcferry.on(...)监听消息时，是否接受朋友圈消息
     recvPyq?: boolean;
@@ -57,6 +58,10 @@ export class Wcferry {
         this.socket = new Socket(this.options.socketOptions);
     }
 
+    private trapOnExit() {
+        process.on('exit', () => this.stop());
+    }
+
     get connected() {
         return this.socket.connected();
     }
@@ -66,7 +71,7 @@ export class Wcferry {
 
     private createUrl(channel: 'cmd' | 'msg' = 'cmd') {
         const url = `tcp://${this.options.host}:${
-            this.options.port + (channel === 'cmd' ? 1 : 0)
+            this.options.port + (channel === 'cmd' ? 0 : 1)
         }`;
         logger(`wcf ${channel} url: %s`, url);
         return url;
@@ -97,6 +102,7 @@ export class Wcferry {
     start() {
         try {
             this.socket.connect(this.createUrl());
+            this.trapOnExit();
             if (this.msgListenerCount > 0) {
                 this.enableMsgReceiving();
             }
@@ -107,6 +113,7 @@ export class Wcferry {
     }
 
     stop() {
+        logger('Closing conneciton...');
         this.disableMsgReceiving();
         this.socket.close();
     }
@@ -432,17 +439,20 @@ export class Wcferry {
      * @param image location of the resource, can be:
      * - a local path (`C:\\Users` or `/home/user`),
      * - a link starts with `http(s)://`,
-     * - a base64 string starts with `data:<mimetype>;base64,xxxxx`,
-     * - a instance implemented VirtualFileRef
+     * - a buffer (base64 string can be convert to buffer by `Buffer.from(<str>, 'base64')`)
+     * - a FileSavableInterface instance
      * @param receiver 消息接收人，wxid 或者 roomid
      * @returns 0 为成功，其他失败
      */
     async sendImage(
-        image: string | VirtualFileRef,
+        image: string | Buffer | FileSavableInterface,
         receiver: string
     ): Promise<number> {
-        const fileRef = new FileRef(image, this.options.cacheDir);
-        const path = await fileRef.save();
+        const fileRef =
+            typeof image === 'string' || Buffer.isBuffer(image)
+                ? new FileRef(image)
+                : image;
+        const { path, discard } = await fileRef.save(this.options.cacheDir);
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_SEND_IMG,
             file: new wcf.PathMsg({
@@ -451,7 +461,7 @@ export class Wcferry {
             }),
         });
         const rsp = this.sendRequest(req);
-        void fileRef.del();
+        void discard();
         return rsp.status;
     }
 
@@ -459,25 +469,29 @@ export class Wcferry {
      * @param file location of the resource, can be:
      * - a local path (`C:\\Users` or `/home/user`),
      * - a link starts with `http(s)://`,
-     * - a base64 string starts with `data:<mimetype>;base64,xxxxx`,
-     * - a instance implemented VirtualFileRef
+     * - a buffer (base64 string can be convert to buffer by `Buffer.from(<str>, 'base64')`)
+     * - a FileSavableInterface instance
      * @param receiver 消息接收人，wxid 或者 roomid
      * @returns 0 为成功，其他失败
      */
     async sendFile(
-        file: string | VirtualFileRef,
+        file: string | Buffer | FileSavableInterface,
         receiver: string
     ): Promise<number> {
-        const fileRef = new FileRef(file, this.options.cacheDir);
+        const fileRef =
+            typeof file === 'string' || Buffer.isBuffer(file)
+                ? new FileRef(file)
+                : file;
+        const { path, discard } = await fileRef.save(this.options.cacheDir);
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_SEND_FILE,
             file: new wcf.PathMsg({
-                path: await fileRef.save(),
+                path,
                 receiver,
             }),
         });
         const rsp = this.sendRequest(req);
-        void fileRef.del();
+        void discard();
         return rsp.status;
     }
 
