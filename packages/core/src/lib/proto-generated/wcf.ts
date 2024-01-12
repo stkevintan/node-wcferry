@@ -235,7 +235,7 @@ export namespace wcf {
             xml?: never;
             dec?: never;
             tf?: never;
-            ui64?: number;
+            ui64?: string;
             flag?: never;
             att?: never;
             am?: never;
@@ -507,9 +507,9 @@ export namespace wcf {
             return pb_1.Message.getField(this, 11) != null;
         }
         get ui64() {
-            return pb_1.Message.getFieldWithDefault(this, 12, 0) as number;
+            return pb_1.Message.getFieldWithDefault(this, 12, "0") as string;
         }
-        set ui64(value: number) {
+        set ui64(value: string) {
             pb_1.Message.setOneofField(this, 12, this.#one_of_decls[0], value);
         }
         get has_ui64() {
@@ -606,7 +606,7 @@ export namespace wcf {
             xml?: ReturnType<typeof XmlMsg.prototype.toObject>;
             dec?: ReturnType<typeof DecPath.prototype.toObject>;
             tf?: ReturnType<typeof Transfer.prototype.toObject>;
-            ui64?: number;
+            ui64?: string;
             flag?: boolean;
             att?: ReturnType<typeof AttachMsg.prototype.toObject>;
             am?: ReturnType<typeof AudioMsg.prototype.toObject>;
@@ -684,7 +684,7 @@ export namespace wcf {
                 xml?: ReturnType<typeof XmlMsg.prototype.toObject>;
                 dec?: ReturnType<typeof DecPath.prototype.toObject>;
                 tf?: ReturnType<typeof Transfer.prototype.toObject>;
-                ui64?: number;
+                ui64?: string;
                 flag?: boolean;
                 att?: ReturnType<typeof AttachMsg.prototype.toObject>;
                 am?: ReturnType<typeof AudioMsg.prototype.toObject>;
@@ -775,7 +775,7 @@ export namespace wcf {
             if (this.has_tf)
                 writer.writeMessage(11, this.tf, () => this.tf.serialize(writer));
             if (this.has_ui64)
-                writer.writeUint64(12, this.ui64);
+                writer.writeUint64String(12, this.ui64);
             if (this.has_flag)
                 writer.writeBool(13, this.flag);
             if (this.has_att)
@@ -831,7 +831,7 @@ export namespace wcf {
                         reader.readMessage(message.tf, () => message.tf = Transfer.deserialize(reader));
                         break;
                     case 12:
-                        message.ui64 = reader.readUint64();
+                        message.ui64 = reader.readUint64String();
                         break;
                     case 13:
                         message.flag = reader.readBool();
@@ -1353,7 +1353,7 @@ export namespace wcf {
         constructor(data?: any[] | {
             is_self?: boolean;
             is_group?: boolean;
-            id?: number;
+            id?: string;
             type?: number;
             ts?: number;
             roomid?: string;
@@ -1418,9 +1418,9 @@ export namespace wcf {
             pb_1.Message.setField(this, 2, value);
         }
         get id() {
-            return pb_1.Message.getFieldWithDefault(this, 3, 0) as number;
+            return pb_1.Message.getFieldWithDefault(this, 3, "0") as string;
         }
-        set id(value: number) {
+        set id(value: string) {
             pb_1.Message.setField(this, 3, value);
         }
         get type() {
@@ -1480,7 +1480,7 @@ export namespace wcf {
         static fromObject(data: {
             is_self?: boolean;
             is_group?: boolean;
-            id?: number;
+            id?: string;
             type?: number;
             ts?: number;
             roomid?: string;
@@ -1534,7 +1534,7 @@ export namespace wcf {
             const data: {
                 is_self?: boolean;
                 is_group?: boolean;
-                id?: number;
+                id?: string;
                 type?: number;
                 ts?: number;
                 roomid?: string;
@@ -1591,8 +1591,8 @@ export namespace wcf {
                 writer.writeBool(1, this.is_self);
             if (this.is_group != false)
                 writer.writeBool(2, this.is_group);
-            if (this.id != 0)
-                writer.writeUint64(3, this.id);
+            if (this.id != "0")
+                writer.writeUint64String(3, this.id);
             if (this.type != 0)
                 writer.writeUint32(4, this.type);
             if (this.ts != 0)
@@ -1627,7 +1627,7 @@ export namespace wcf {
                         message.is_group = reader.readBool();
                         break;
                     case 3:
-                        message.id = reader.readUint64();
+                        message.id = reader.readUint64String();
                         break;
                     case 4:
                         message.type = reader.readUint32();
@@ -3485,7 +3485,7 @@ export namespace wcf {
     export class AttachMsg extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
-            id?: number;
+            id?: string;
             thumb?: string;
             extra?: string;
         }) {
@@ -3504,9 +3504,9 @@ export namespace wcf {
             }
         }
         get id() {
-            return pb_1.Message.getFieldWithDefault(this, 1, 0) as number;
+            return pb_1.Message.getFieldWithDefault(this, 1, "0") as string;
         }
-        set id(value: number) {
+        set id(value: string) {
             pb_1.Message.setField(this, 1, value);
         }
         get thumb() {
@@ -3522,7 +3522,7 @@ export namespace wcf {
             pb_1.Message.setField(this, 3, value);
         }
         static fromObject(data: {
-            id?: number;
+            id?: string;
             thumb?: string;
             extra?: string;
         }): AttachMsg {
@@ -3540,7 +3540,7 @@ export namespace wcf {
         }
         toObject() {
             const data: {
-                id?: number;
+                id?: string;
                 thumb?: string;
                 extra?: string;
             } = {};
@@ -3559,8 +3559,8 @@ export namespace wcf {
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
-            if (this.id != 0)
-                writer.writeUint64(1, this.id);
+            if (this.id != "0")
+                writer.writeUint64String(1, this.id);
             if (this.thumb.length)
                 writer.writeString(2, this.thumb);
             if (this.extra.length)
@@ -3575,7 +3575,7 @@ export namespace wcf {
                     break;
                 switch (reader.getFieldNumber()) {
                     case 1:
-                        message.id = reader.readUint64();
+                        message.id = reader.readUint64String();
                         break;
                     case 2:
                         message.thumb = reader.readString();
@@ -3598,7 +3598,7 @@ export namespace wcf {
     export class AudioMsg extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
-            id?: number;
+            id?: string;
             dir?: string;
         }) {
             super();
@@ -3613,9 +3613,9 @@ export namespace wcf {
             }
         }
         get id() {
-            return pb_1.Message.getFieldWithDefault(this, 1, 0) as number;
+            return pb_1.Message.getFieldWithDefault(this, 1, "0") as string;
         }
-        set id(value: number) {
+        set id(value: string) {
             pb_1.Message.setField(this, 1, value);
         }
         get dir() {
@@ -3625,7 +3625,7 @@ export namespace wcf {
             pb_1.Message.setField(this, 2, value);
         }
         static fromObject(data: {
-            id?: number;
+            id?: string;
             dir?: string;
         }): AudioMsg {
             const message = new AudioMsg({});
@@ -3639,7 +3639,7 @@ export namespace wcf {
         }
         toObject() {
             const data: {
-                id?: number;
+                id?: string;
                 dir?: string;
             } = {};
             if (this.id != null) {
@@ -3654,8 +3654,8 @@ export namespace wcf {
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
-            if (this.id != 0)
-                writer.writeUint64(1, this.id);
+            if (this.id != "0")
+                writer.writeUint64String(1, this.id);
             if (this.dir.length)
                 writer.writeString(2, this.dir);
             if (!w)
@@ -3668,7 +3668,7 @@ export namespace wcf {
                     break;
                 switch (reader.getFieldNumber()) {
                     case 1:
-                        message.id = reader.readUint64();
+                        message.id = reader.readUint64String();
                         break;
                     case 2:
                         message.dir = reader.readString();
@@ -4073,7 +4073,7 @@ export namespace wcf {
     export class ForwardMsg extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
-            id?: number;
+            id?: string;
             receiver?: string;
         }) {
             super();
@@ -4088,9 +4088,9 @@ export namespace wcf {
             }
         }
         get id() {
-            return pb_1.Message.getFieldWithDefault(this, 1, 0) as number;
+            return pb_1.Message.getFieldWithDefault(this, 1, "0") as string;
         }
-        set id(value: number) {
+        set id(value: string) {
             pb_1.Message.setField(this, 1, value);
         }
         get receiver() {
@@ -4100,7 +4100,7 @@ export namespace wcf {
             pb_1.Message.setField(this, 2, value);
         }
         static fromObject(data: {
-            id?: number;
+            id?: string;
             receiver?: string;
         }): ForwardMsg {
             const message = new ForwardMsg({});
@@ -4114,7 +4114,7 @@ export namespace wcf {
         }
         toObject() {
             const data: {
-                id?: number;
+                id?: string;
                 receiver?: string;
             } = {};
             if (this.id != null) {
@@ -4129,8 +4129,8 @@ export namespace wcf {
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
-            if (this.id != 0)
-                writer.writeUint64(1, this.id);
+            if (this.id != "0")
+                writer.writeUint64String(1, this.id);
             if (this.receiver.length)
                 writer.writeString(2, this.receiver);
             if (!w)
@@ -4143,7 +4143,7 @@ export namespace wcf {
                     break;
                 switch (reader.getFieldNumber()) {
                     case 1:
-                        message.id = reader.readUint64();
+                        message.id = reader.readUint64String();
                         break;
                     case 2:
                         message.receiver = reader.readString();

@@ -12,7 +12,6 @@ import {
 } from './utils';
 import { FileRef, FileSavableInterface } from './file-ref';
 import { Message } from './message';
-
 export type UserInfo = ToPlainType<wcf.UserInfo>;
 export type Contact = ToPlainType<wcf.RpcContact>;
 export type DbTable = ToPlainType<wcf.DbTable>;
@@ -226,10 +225,10 @@ export class Wcferry {
 
     /**
      * 刷新朋友圈
-     * @param id 开始 id，0 为最新页
+     * @param id 开始 id，0 为最新页 (string based uint64)
      * @returns 1 为成功，其他失败
      */
-    refreshPyq(id: number): number {
+    refreshPyq(id: string): number {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_REFRESH_PYQ,
             ui64: id,
@@ -385,10 +384,10 @@ export class Wcferry {
 
     /**
      * 撤回消息
-     * @param msgid (uint64): 消息 id
+     * @param msgid (uint64 in string format): 消息 id
      * @returns int: 1 为成功，其他失败
      */
-    revokeMsg(msgid: number): number {
+    revokeMsg(msgid: string): number {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_REVOKE_MSG,
             ui64: msgid,
@@ -399,11 +398,11 @@ export class Wcferry {
 
     /**
      * 转发消息。可以转发文本、图片、表情、甚至各种 XML；语音也行，不过效果嘛，自己验证吧。
-     * @param msgid (uint64): 消息 id
+     * @param msgid (uint64 in string format): 消息 id
      * @param receiver string 消息接收人，wxid 或者 roomid
      * @returns int: 1 为成功，其他失败
      */
-    forwardMsg(msgid: number, receiver: string): number {
+    forwardMsg(msgid: string, receiver: string): number {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_FORWARD_MSG,
             fm: new wcf.ForwardMsg({
@@ -599,7 +598,7 @@ export class Wcferry {
      * @param times 超时时间（秒）
      * @returns 成功返回存储路径；空字符串为失败，原因见日志。
      */
-    async getAudioMsg(msgid: number, dir: string, times = 3): Promise<string> {
+    async getAudioMsg(msgid: string, dir: string, times = 3): Promise<string> {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_GET_AUDIO_MSG,
             am: new wcf.AudioMsg({
@@ -648,7 +647,7 @@ export class Wcferry {
      * @param extra 消息中的 extra
      * @returns 0 为成功, 其他失败。
      */
-    downloadAttach(msgid: number, thumb: string = "", extra: string = ""): number {
+    downloadAttach(msgid: string, thumb: string = "", extra: string = ""): number {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_DOWNLOAD_ATTACH,
             att: new wcf.AttachMsg({
@@ -688,7 +687,7 @@ export class Wcferry {
      * @returns 成功返回存储路径；空字符串为失败，原因见日志。
      */
     async downloadImage(
-        msgid: number,
+        msgid: string,
         extra: string,
         dir: string,
         times = 30
