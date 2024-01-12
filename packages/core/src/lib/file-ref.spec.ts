@@ -74,7 +74,8 @@ describe('file-ref', () => {
 
     it('should error when location is invalid', async () => {
         const ref = new FileRef(randomUUID());
-        await expect(ref.save(cacheDir)).rejects.toThrow();
+        await expect(ref.save(cacheDir)).resolves.toBeDefined();
+        await expect(ref.save(cacheDir, true)).rejects.toThrow();
         const ref2 = new FileRef(`http://${randomUUID()}`);
         await expect(ref2.save(cacheDir)).rejects.toThrow();
     });
