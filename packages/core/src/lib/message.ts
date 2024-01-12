@@ -7,7 +7,7 @@ export class Message {
     constructor(private readonly message: wcf.WxMsg) {}
 
     get raw(): RawMessage {
-        return this.message;
+        return this.message.toObject() as RawMessage;
     }
 
     get id() {

@@ -1,6 +1,6 @@
 import os from 'os';
 import { randomUUID } from 'crypto';
-import { cp, rm, symlink, writeFile } from 'fs/promises';
+import { cp, rm, writeFile } from 'fs/promises';
 import mime from 'mime';
 import path from 'path';
 import { URL } from 'url';
@@ -44,12 +44,12 @@ export class FileRef implements FileSavableInterface {
     /**
      * save the file into dir with name and extension inferred
      * @param dir the saving directory, defaults to `os.tmpdir()`
-     * @param useSymLink use symlink instead of copy when location points to a local file
+     * @param cpLocal when the source is local file, if we copy it to dir or directly return the source path
      * @returns
      */
     async save(
         dir = os.tmpdir(),
-        useSymLink = true
+        cpLocal = false
     ): Promise<{ path: string; discard: () => Promise<void> }> {
         ensureDirSync(dir);
         if (Buffer.isBuffer(this.location)) {
@@ -62,8 +62,14 @@ export class FileRef implements FileSavableInterface {
             return this.wrapWithDiscard(p);
         }
 
-        const p = await this.saveFromFile(dir, useSymLink);
-        return this.wrapWithDiscard(p);
+        if (cpLocal) {
+            return this.wrapWithDiscard(await this.saveFromFile(dir));
+        }
+        // if file existed in local, we direct use it
+        return {
+            path: this.location,
+            discard: () => Promise.resolve(),
+        };
     }
 
     wrapWithDiscard(p: string) {
@@ -145,10 +151,7 @@ export class FileRef implements FileSavableInterface {
         });
     }
 
-    private async saveFromFile(
-        dir: string,
-        useSymLink = true
-    ): Promise<string> {
+    private async saveFromFile(dir: string): Promise<string> {
         assert(typeof this.location === 'string', 'impossible');
         if (!existsSync(this.location)) {
             return Promise.reject(
@@ -160,12 +163,7 @@ export class FileRef implements FileSavableInterface {
         });
         const saved = this.getSavingPath(dir, name);
 
-        if (useSymLink) {
-            await symlink(this.location, saved);
-            return saved;
-        } else {
-            await cp(this.location, saved, { force: true });
-            return saved;
-        }
+        await cp(this.location, saved, { force: true });
+        return saved;
     }
 }

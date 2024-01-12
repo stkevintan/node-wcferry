@@ -1,4 +1,4 @@
-import { lstat, rm } from 'fs/promises';
+import { rm } from 'fs/promises';
 import { createTmpDir, ensureDirSync } from './utils';
 import path from 'path';
 import { FileRef } from './file-ref';
@@ -20,19 +20,26 @@ describe('file-ref', () => {
         await rm(cacheDir, { recursive: true, force: true });
     });
 
-    it('save local file', async () => {
-        const ref = new FileRef(testImagePath);
-        const p = await ref.save(cacheDir);
-        const copied = path.join(cacheDir, path.basename(testImagePath));
-        expect(p.path).toBe(copied);
-        expect(existsSync(copied)).toBeTruthy();
-        const stat = await lstat(copied);
-        expect(stat.isSymbolicLink()).toBe(true);
-        await p.discard();
-        const p2 = await ref.save(cacheDir, false);
-        expect(p2.path).toBe(copied);
-        const stat3 = await lstat(copied);
-        expect(stat3.isSymbolicLink()).toBe(false);
+    describe('save local file', () => {
+        it('no copy (default))', async () => {
+            const ref = new FileRef(testImagePath);
+            const p = await ref.save(cacheDir);
+            const copied = path.join(cacheDir, path.basename(testImagePath));
+            expect(p.path).not.toBe(copied);
+            expect(existsSync(copied)).toBeFalsy();
+            await p.discard();
+            expect(existsSync(p.path)).toBeTruthy();
+        });
+
+        it('copy', async () => {
+            const ref = new FileRef(testImagePath);
+            const p = await ref.save(cacheDir, true);
+            const copied = path.join(cacheDir, path.basename(testImagePath));
+            expect(p.path).toBe(copied);
+            expect(existsSync(copied)).toBeTruthy();
+            await p.discard();
+            expect(existsSync(p.path)).toBeFalsy();
+        });
     });
 
     it('save url', async () => {
