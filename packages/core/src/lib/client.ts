@@ -157,7 +157,7 @@ export class Wcferry {
             func: wcf.Functions.FUNC_GET_CONTACTS,
         });
         const rsp = this.sendRequest(req);
-        return rsp.contacts.contacts;
+        return rsp.contacts.contacts.map((c) => c.toObject() as Contact);
     }
 
     /** 通过 wxid 查询微信号昵称等信息 */
@@ -167,7 +167,7 @@ export class Wcferry {
             str: wxid,
         });
         const rsp = this.sendRequest(req);
-        return rsp.contacts.contacts[0];
+        return rsp.contacts.contacts[0].toObject() as Contact;
     }
 
     /** 获取所有数据库 */
@@ -186,7 +186,7 @@ export class Wcferry {
             str: db,
         });
         const rsp = this.sendRequest(req);
-        return rsp.tables.tables;
+        return rsp.tables.tables.map(t => t.toObject() as DbTable);
     }
 
     /**

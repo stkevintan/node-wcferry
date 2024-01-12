@@ -2,7 +2,10 @@
     "name": "@wcferry/ws",
     "version": "0.0.1",
     "dependencies": {
-        "@swc/helpers": "~0.5.2"
+        "@swc/helpers": "~0.5.2",
+        "@wcferry/core": "*",
+        "debug": "^4.3.4",
+        "ws": "^8.16.0"
     },
     "type": "commonjs",
     "main": "./src/index.js",
@@ -16,5 +19,8 @@
     },
     "author": {
         "name": "stkevintan"
+    },
+    "devDependencies": {
+        "@types/ws": "^8.5.10"
     }
 }

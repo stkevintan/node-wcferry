@@ -28,6 +28,13 @@
             "options": {
                 "reportsDirectory": "../../coverage/packages/ws"
             }
+        },
+        "tsx": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "pnpm tsx ./bin/wcfwebsocket.ts",
+                "cwd": "{projectRoot}"
+            }
         }
     },
     "tags": ["wip"]
