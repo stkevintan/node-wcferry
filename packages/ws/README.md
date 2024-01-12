@@ -19,10 +19,10 @@ await WcfWSServer.start({ port: 8000 });
 ```ts
 const wcferry = new Wcferry();
 new WcfWSServer(wcferry, { port: 8000 });
-// do your bot logic ...
+// impl your bot logic ...
 ```
 
-## message definiton
+## Message definiton
 
 ### General commands:
 
@@ -34,9 +34,9 @@ interface Command {
 }
 ```
 
-methods and params are a subset of [@wcferry/core](../packages/core/src/lib/client.ts) methods
+methods and params are same as methods in [@wcferry/core](../core/src/lib/client.ts)
 
-All the allowed methods:
+All the supported commands:
 
 ```ts
 [
@@ -73,26 +73,6 @@ All the allowed methods:
 ];
 ```
 
-### Server response
-
-1. ok:
-
-```ts
-interface OKResp {
-    id: number;
-    result: any;
-}
-```
-
-2. error:
-
-```ts
-interface ErrorResp {
-    id: number;
-    error: { message: string; code?: number };
-}
-```
-
 ### Special commands
 
 Following commands can control whether receving messages including pyq messages:
@@ -118,9 +98,31 @@ interface SetRecvPyq {
 }
 ```
 
-### Messages
+## Server response
 
-Once we enable the receiving message, the websocket server will start to push the chat messages
+### Command response
+
+1. ok:
+
+```ts
+interface OKResp {
+    id: number;
+    result: any;
+}
+```
+
+2. error:
+
+```ts
+interface ErrorResp {
+    id: number;
+    error: { message: string; code?: number };
+}
+```
+
+### Message response
+
+Once we enable receiving message, the websocket server will start to push the chat messages back:
 
 ```ts
 interface Message {

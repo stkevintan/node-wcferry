@@ -186,7 +186,7 @@ export class Wcferry {
             str: db,
         });
         const rsp = this.sendRequest(req);
-        return rsp.tables.tables.map(t => t.toObject() as DbTable);
+        return rsp.tables.tables.map((t) => t.toObject() as DbTable);
     }
 
     /**

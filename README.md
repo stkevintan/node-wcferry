@@ -3,39 +3,10 @@
 [![CI](https://github.com/stkevintan/node-wcferry/actions/workflows/ci.yml/badge.svg)](https://github.com/stkevintan/node-wcferry/actions/workflows/ci.yml)
 [![npm version](https://badge.fury.io/js/@wcferry%2Fcore.svg)](https://badge.fury.io/js/@wcferry%2Fcore)
 
-A node impl of wcferry nanomsg clients:
+## Packages
 
-1. core: the main lib of wcferry
-2. ws: a websocket api server (WIP)
-3. http: a http api server (WIP)
-
-## Install
-
-```
-npm i @wcferry/core
-```
-
-### Usage
-
-```ts
-import { Wcferry } from '@wcferry/core';
-
-const client = new Wcferry({ port: 10086 });
-client.start();
-
-const isLogin = client.isLogin();
-
-// start receiving message
-const off = client.on((msg) => {
-    console.log('received message:', msg);
-});
-
-// stop reciving message
-off();
-
-// close
-client.stop();
-```
+1. [@wcferry/core](./packages/core): The native wcferry RPC client
+2. [@wcferry/ws](./packages/ws): A tiny websocket server built upon the core lib
 
 ### Debug
 

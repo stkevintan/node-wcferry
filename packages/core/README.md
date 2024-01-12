@@ -1,6 +1,39 @@
-# core
+# @wcferry/core
 
-This library was generated with [Nx](https://nx.dev).
+A node impl of wcferry nanomsg clients:
+
+1. core: the main lib of wcferry
+2. ws: a websocket api server (WIP)
+3. http: a http api server (WIP)
+
+## Install
+
+```
+npm i @wcferry/core
+```
+
+### Usage
+
+```ts
+import { Wcferry } from '@wcferry/core';
+
+const client = new Wcferry({ port: 10086 });
+client.start();
+
+const isLogin = client.isLogin();
+
+// start receiving message
+const off = client.on((msg) => {
+    console.log('received message:', msg);
+});
+
+// stop reciving message
+off();
+
+// close
+client.stop();
+```
+
 
 ## Building
 
