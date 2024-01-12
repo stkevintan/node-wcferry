@@ -647,7 +647,11 @@ export class Wcferry {
      * @param extra 消息中的 extra
      * @returns 0 为成功, 其他失败。
      */
-    downloadAttach(msgid: string, thumb: string = "", extra: string = ""): number {
+    downloadAttach(
+        msgid: string,
+        thumb: string = '',
+        extra: string = ''
+    ): number {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_DOWNLOAD_ATTACH,
             att: new wcf.AttachMsg({
