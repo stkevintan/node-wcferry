@@ -30,15 +30,16 @@ jobs:
                   node-version: 20
                   cache: 'pnpm'
             - run: pnpm i --frozen-lockfile
-            - uses: nrwl/nx-set-shas@v4
-            - run: |
-                  echo "BASE: ${{ env.NX_BASE }}"
-                  echo "HEAD: ${{ env.NX_HEAD }}"
+            # - uses: nrwl/nx-set-shas@v4
+            # - run: |
+            #       echo "BASE: ${{ env.NX_BASE }}"
+            #       echo "HEAD: ${{ env.NX_HEAD }}"
             # This line is needed for nx affected to work when CI is running on a PR
             # - run: git branch --track main origin/main
 
             - run: pnpm nx format:check
-            - run: pnpm nx affected -t lint,test,build --parallel=3 --exclude='tag:wip'
+            # - run: pnpm nx affected -t lint,test,build --parallel=3 --exclude='tag:wip'
+            - run: pnpm nx run-many -t lint,test,build --parallel=3
             - name: Publish
               shell: pwsh
               run: |
