@@ -49,11 +49,11 @@ jobs:
                     exit 0
                   }
 
-                  if ($commit -match "^core@[0-9]+\.[0-9]+\.[0-9]+") {
+                  if ($commit -match "core@[0-9]+\.[0-9]+\.[0-9]+") {
                     echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
                     pnpm nx run core:publish --ver $($Matches[0])
                   }
-                  if ($commit -match "^ws@[0-9]+\.[0-9]+\.[0-9]+") {
+                  if ($commit -match "ws@[0-9]+\.[0-9]+\.[0-9]+") {
                     echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
                     pnpm nx run ws:publish --ver $($Matches[0])
                   }
