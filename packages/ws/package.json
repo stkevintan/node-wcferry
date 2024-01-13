@@ -3,10 +3,12 @@
     "version": "0.0.1",
     "dependencies": {
         "@swc/helpers": "~0.5.2",
-        "@wcferry/core": "*",
         "commander": "^11.1.0",
         "debug": "^4.3.4",
         "ws": "^8.16.0"
+    },
+    "peerDependencies": {
+        "@wcferry/core": "*"
     },
     "bin": {
         "wcfwebsocket": "./src/cmd.js"
