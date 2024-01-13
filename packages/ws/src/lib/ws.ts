@@ -51,7 +51,7 @@ export class WcfWSServer {
     private wss: ws.WebSocketServer;
     constructor(private wcferry: Wcferry, options?: ws.ServerOptions) {
         this.wss = new ws.WebSocketServer({
-            port: 8080,
+            port: 8000,
             ...options,
         });
         this.listen();
@@ -60,15 +60,21 @@ export class WcfWSServer {
     static start(options?: { wcferry: WcferryOptions; ws: ws.ServerOptions }) {
         const wcferry = new Wcferry(options?.wcferry);
         wcferry.start();
+        logger('new websocket server: %O', options?.ws);
         return new WcfWSServer(wcferry, options?.ws);
     }
 
     private off?: () => void;
 
     private listen() {
+        this.wss.on('error', (err) => {
+            logger(`Websocket server error: %O`, err);
+        });
+
         this.wss.on('connection', (ws) => {
+            logger('Wcferry websocket server is started...');
             ws.on('error', (err) => {
-                console.log(err);
+                logger(`Websokcet server error: %O`, err);
             });
             ws.on('message', async (data) => {
                 const req = this.parseReq(data.toString('utf8'));

@@ -1,4 +1,5 @@
 import { Socket, SocketOptions } from '@rustup/nng';
+import * as cp from 'child_process';
 import debug from 'debug';
 import { wcf } from './proto-generated/wcf';
 import * as rd from './proto-generated/roomdata';
@@ -12,12 +13,14 @@ import {
 } from './utils';
 import { FileRef, FileSavableInterface } from './file-ref';
 import { Message } from './message';
+import path from 'path';
 export type UserInfo = ToPlainType<wcf.UserInfo>;
 export type Contact = ToPlainType<wcf.RpcContact>;
 export type DbTable = ToPlainType<wcf.DbTable>;
 
 export interface WcferryOptions {
     port?: number;
+    /** if host is empty, the program will try to load wcferry.exe and *.dll */
     host?: string;
     socketOptions?: SocketOptions;
     /** the cache dir to hold temp files, defaults to `os.tmpdir()/wcferry`  */
@@ -40,16 +43,20 @@ export class Wcferry {
     private isMsgReceiving = false;
     private msgDispose?: () => void;
     private socket: Socket;
+    private localMode = false;
     private readonly msgEventSub = new EventEmitter();
     private options: Required<WcferryOptions>;
     constructor(options?: WcferryOptions) {
         this.options = {
-            port: options?.port ?? 10086,
-            host: options?.host ?? '127.0.0.1',
+            port: options?.port || 10086,
+            host: options?.host || '127.0.0.1',
             socketOptions: options?.socketOptions ?? {},
-            cacheDir: options?.cacheDir ?? createTmpDir(),
-            recvPyq: options?.recvPyq ?? false,
+            cacheDir: options?.cacheDir || createTmpDir(),
+            recvPyq: !!options?.recvPyq,
         };
+        if (!options?.host) {
+            this.localMode = true;
+        }
 
         ensureDirSync(this.options.cacheDir);
 
@@ -100,14 +107,37 @@ export class Wcferry {
 
     start() {
         try {
+            if (this.localMode) {
+                this.execDLL('start');
+            }
             this.socket.connect(this.createUrl());
             this.trapOnExit();
             if (this.msgListenerCount > 0) {
                 this.enableMsgReceiving();
             }
         } catch (err) {
-            logger('cannot connect to wcf RPC server');
+            logger('cannot connect to wcf RPC server, did wcf.exe started?');
             throw err;
+        }
+    }
+
+    execDLL(verb: 'start' | 'stop') {
+        const scriptPath = path.resolve(__dirname, '../../scripts/wcferry.ps1');
+        const process = cp.spawnSync(
+            'powershell',
+            [
+                // '-NonInteractive',
+                '-ExecutionPolicy Unrestricted',
+                `-File ${scriptPath} -Verb ${verb} -Port ${this.options.port}`,
+            ],
+            { shell: true, stdio: 'inherit' }
+        );
+        if (process.error || process.status !== 0) {
+            throw new Error(
+                `Cannot ${verb} wcferry DLL: ${
+                    process.error || `exit ${process.status}`
+                }`
+            );
         }
     }
 
@@ -115,6 +145,7 @@ export class Wcferry {
         logger('Closing conneciton...');
         this.disableMsgReceiving();
         this.socket.close();
+        this.execDLL('stop');
     }
 
     private sendRequest(req: wcf.Request): wcf.Response {
@@ -439,18 +470,20 @@ export class Wcferry {
      * - a local path (`C:\\Users` or `/home/user`),
      * - a link starts with `http(s)://`,
      * - a buffer (base64 string can be convert to buffer by `Buffer.from(<str>, 'base64')`)
+     * - an object { type: 'Buffer', data: number[] } which can convert to Buffer
      * - a FileSavableInterface instance
      * @param receiver 消息接收人，wxid 或者 roomid
      * @returns 0 为成功，其他失败
      */
     async sendImage(
-        image: string | Buffer | FileSavableInterface,
+        image:
+            | string
+            | Buffer
+            | { type: 'Buffer'; data: number[] }
+            | FileSavableInterface,
         receiver: string
     ): Promise<number> {
-        const fileRef =
-            typeof image === 'string' || Buffer.isBuffer(image)
-                ? new FileRef(image)
-                : image;
+        const fileRef = toRef(image);
         const { path, discard } = await fileRef.save(this.options.cacheDir);
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_SEND_IMG,
@@ -469,18 +502,20 @@ export class Wcferry {
      * - a local path (`C:\\Users` or `/home/user`),
      * - a link starts with `http(s)://`,
      * - a buffer (base64 string can be convert to buffer by `Buffer.from(<str>, 'base64')`)
+     * - an object { type: 'Buffer', data: number[] } which can convert to Buffer
      * - a FileSavableInterface instance
      * @param receiver 消息接收人，wxid 或者 roomid
      * @returns 0 为成功，其他失败
      */
     async sendFile(
-        file: string | Buffer | FileSavableInterface,
+        file:
+            | string
+            | Buffer
+            | { type: 'Buffer'; data: number[] }
+            | FileSavableInterface,
         receiver: string
     ): Promise<number> {
-        const fileRef =
-            typeof file === 'string' || Buffer.isBuffer(file)
-                ? new FileRef(file)
-                : file;
+        const fileRef = toRef(file);
         const { path, discard } = await fileRef.save(this.options.cacheDir);
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_SEND_FILE,
@@ -842,6 +877,22 @@ export class Wcferry {
             this.msgEventSub.off('wxmsg', callback);
         };
     }
+}
+
+function toRef(
+    file:
+        | string
+        | Buffer
+        | { type: 'Buffer'; data: number[] }
+        | FileSavableInterface
+): FileSavableInterface {
+    if (typeof file === 'string' || Buffer.isBuffer(file)) {
+        return new FileRef(file);
+    }
+    if ('save' in file) {
+        return file;
+    }
+    return new FileRef(Buffer.from(file.data));
 }
 
 function parseDbField(type: number, content: Uint8Array) {

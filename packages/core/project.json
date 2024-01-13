@@ -11,7 +11,7 @@
                 "outputPath": "dist/packages/core",
                 "main": "packages/core/src/index.ts",
                 "tsConfig": "packages/core/tsconfig.lib.json",
-                "assets": ["packages/core/*.md"]
+                "assets": ["packages/core/*.md", "packages/core/scripts/*.ps1"]
             }
         },
         "build:proto": {
@@ -19,7 +19,15 @@
             "inputs": ["{projectRoot}/proto/*"],
             "outputs": ["{projectRoot}/src/lib/proto-generated/*"],
             "options": {
-                "command": "pwsh ./gen-proto.ps1",
+                "command": "powershell ./scripts/gen-proto.ps1",
+                "cwd": "{projectRoot}"
+            }
+        },
+        "build:dll": {
+            "executor": "nx:run-commands",
+            "outputs": ["{projectRoot}/.binary/*"],
+            "options": {
+                "command": "powershell ./scripts/get-release.ps1",
                 "cwd": "{projectRoot}"
             }
         },

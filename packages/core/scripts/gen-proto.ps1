@@ -1,5 +1,3 @@
-#Requires -Version 7
-
 $ErrorActionPreference = "stop"
 
 function New-ProtoDir([string]$p) {
@@ -9,8 +7,8 @@ function New-ProtoDir([string]$p) {
     return $p | Resolve-Path
 }
 
-$PROTO_DIR = New-ProtoDir "$PSScriptRoot/.proto"
-$PROTO_GENERATED = New-ProtoDir "$PSScriptRoot/src/lib/proto-generated" 
+$PROTO_DIR = New-ProtoDir "$PSScriptRoot/../.proto"
+$PROTO_GENERATED = New-ProtoDir "$PSScriptRoot/../src/lib/proto-generated" 
 
 # if powershell 5 or pwsh with platform Win32NT
 if (!$PSVersionTable.Platform -or ($PSVersionTable.Platform -eq "Win32NT")) {

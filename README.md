@@ -10,9 +10,7 @@
 
 ### Debug
 
-Debuging is provided by https://www.npmjs.com/package/debug
-
-Set environment `DEBUG` to `wcferry:*` to enable debugging logs
+Set environment `DEBUG="wcferry:*"` will enable debugging logs (powered by https://www.npmjs.com/package/debug)
 
 ## Running tasks
 
@@ -35,7 +33,3 @@ nx run-many -t <target1> <target2> -p <proj1> <proj2>
 ```
 
 Targets can be defined in the `package.json` or `projects.json`. Learn more [in the docs](https://nx.dev/core-features/run-tasks).
-
-## Regenerate protobuf files
-
-Run `nx build:proto core` to build latest pb to `src/lib/proto-generated/`

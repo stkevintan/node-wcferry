@@ -8,6 +8,7 @@
             "executor": "@nx/js:swc",
             "outputs": ["{options.outputPath}"],
             "options": {
+                "additionalEntryPoints": ["packages/ws/src/cmd.ts"],
                 "outputPath": "dist/packages/ws",
                 "main": "packages/ws/src/index.ts",
                 "tsConfig": "packages/ws/tsconfig.lib.json",
@@ -32,10 +33,10 @@
         "tsx": {
             "executor": "nx:run-commands",
             "options": {
-                "command": "pnpm tsx ./bin/wcfwebsocket.ts",
+                "command": "pnpm tsx ./src/cmd.ts",
                 "cwd": "{projectRoot}"
             }
         }
     },
-    "tags": ["wip"]
+    "tags": []
 }

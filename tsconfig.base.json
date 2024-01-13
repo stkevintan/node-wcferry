@@ -4,6 +4,7 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "module": "CommonJS",
+        "resolveJsonModule": true,
         "moduleResolution": "node",
         "baseUrl": "./",
         "declaration": true,

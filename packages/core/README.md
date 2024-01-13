@@ -1,10 +1,6 @@
 # @wcferry/core
 
-A node impl of wcferry nanomsg clients:
-
-1. core: the main lib of wcferry
-2. ws: a websocket api server (WIP)
-3. http: a http api server (WIP)
+A node impl of wcferry nanomsg clients
 
 ## Install
 
@@ -34,10 +30,13 @@ off();
 client.stop();
 ```
 
-
 ## Building
 
 Run `nx build core` to build the library.
+
+## Get latest wcferry release (wcf.exe, \*.dll)
+
+Run `nx build:dll core` to download and unzip latest wcferry components into `.binary/`
 
 ## Regenerate protobuf files
 
