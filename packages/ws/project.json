@@ -12,7 +12,7 @@
                 "outputPath": "dist/packages/ws",
                 "main": "packages/ws/src/index.ts",
                 "tsConfig": "packages/ws/tsconfig.lib.json",
-                "assets": ["packages/ws/*.md"]
+                "assets": ["packages/ws/*.md", "packages/ws/static/*"]
             }
         },
         "publish": {
