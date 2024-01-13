@@ -6,6 +6,7 @@
         "@wcferry/core": "*",
         "commander": "^11.1.0",
         "debug": "^4.3.4",
+        "tslib": "^2.6.2",
         "ws": "^8.16.0"
     },
     "bin": {
