@@ -64,4 +64,4 @@ if (version) {
 
 // Execute "npm publish" to publish
 const tagArgs = tag ? `--tag ${tag}` : '';
-execSync(`npm publish --access public ${tagArgs}`);
+execSync(`pnpm publish --access public ${tagArgs}`);
