@@ -30,6 +30,7 @@ const AllowedBuiltinMethods: Array<CallableMethod<Wcferry>> = [
     'getContact',
     'getContacts',
     'getDbNames',
+    'getDbTables',
     'getFriends',
     'getMsgTypes',
     'getOCRResult',
@@ -91,6 +92,7 @@ export class WcfWSServer {
                             req.params
                         );
                         this.send(ws, req.id, ret);
+                        return;
                     }
                     switch (req.method) {
                         case 'recvPyq':
@@ -130,6 +132,14 @@ export class WcfWSServer {
                                     },
                                 });
                             }
+                            return;
+                        default:
+                            this.send(ws, req.id, {
+                                error: {
+                                    message: `Unknown command: ${req.method}`,
+                                    code: -3,
+                                },
+                            });
                     }
                 }
             });

@@ -1,3 +1,4 @@
+import os from 'os';
 import { Socket, SocketOptions } from '@rustup/nng';
 import * as cp from 'child_process';
 import debug from 'debug';
@@ -31,6 +32,13 @@ export interface WcferryOptions {
 
 const logger = debug('wcferry:client');
 
+enum WcferryStatus {
+    Init,
+    Started,
+    Stopped,
+    Error,
+}
+
 export class Wcferry {
     readonly NotFriend = {
         fmessage: '朋友推荐消息',
@@ -40,6 +48,7 @@ export class Wcferry {
         newsapp: '新闻',
     };
 
+    private status = WcferryStatus.Init;
     private isMsgReceiving = false;
     private msgDispose?: () => void;
     private socket: Socket;
@@ -106,31 +115,44 @@ export class Wcferry {
     }
 
     start() {
+        if (this.status === WcferryStatus.Started) {
+            return;
+        }
+        this.status = WcferryStatus.Started;
         try {
-            if (this.localMode) {
-                this.execDLL('start');
-            }
+            this.execDLL('start');
             this.socket.connect(this.createUrl());
             this.trapOnExit();
             if (this.msgListenerCount > 0) {
                 this.enableMsgReceiving();
             }
         } catch (err) {
+            this.status = WcferryStatus.Error;
             logger('cannot connect to wcf RPC server, did wcf.exe started?');
             throw err;
         }
     }
 
     execDLL(verb: 'start' | 'stop') {
+        if (!this.localMode) {
+            return;
+        }
         const scriptPath = path.resolve(__dirname, '../../scripts/wcferry.ps1');
+        const cwd = path.join(os.homedir(), '.wcferry');
+        ensureDirSync(cwd);
         const process = cp.spawnSync(
             'powershell',
             [
+                '-NoProfile',
                 // '-NonInteractive',
                 '-ExecutionPolicy Unrestricted',
                 `-File ${scriptPath} -Verb ${verb} -Port ${this.options.port}`,
             ],
-            { shell: true, stdio: 'inherit' }
+            {
+                shell: true,
+                stdio: 'inherit',
+                cwd,
+            }
         );
         if (process.error || process.status !== 0) {
             throw new Error(
@@ -142,10 +164,13 @@ export class Wcferry {
     }
 
     stop() {
-        logger('Closing conneciton...');
-        this.disableMsgReceiving();
-        this.socket.close();
-        this.execDLL('stop');
+        if (this.status !== WcferryStatus.Stopped) {
+            this.status = WcferryStatus.Stopped;
+            logger('Closing conneciton...');
+            this.disableMsgReceiving();
+            this.socket.close();
+            this.execDLL('stop');
+        }
     }
 
     private sendRequest(req: wcf.Request): wcf.Response {

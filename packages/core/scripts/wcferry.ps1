@@ -11,36 +11,28 @@ param (
 
 $ErrorActionPreference = "stop"
 
-$Debug = ""
-if ($env:DEBUG) {
-    $Debug = "debug"
-}
 
 Write-Host "Checking existence of wcf.exe ..." -f Cyan
-$binary = "$PSScriptRoot\..\.binary\wcf.exe"
-$dir = Split-Path $binary
-
+$binary = "$PWD\wcf.exe"
 if (!(Test-Path $binary)) {
-    Write-Host $dir
-    & "$PSScriptRoot\get-release.ps1" $dir
+    & "$PSScriptRoot\get-release.ps1" $PWD
 }
-
-$dir = $dir | Resolve-Path
-$binary = $binary | Resolve-Path
-
-Write-Host "wcf.exe is located in $binary" -f Green
 
 if ($Verb -eq 'start') {
-    $arguments = @("start", "$Port", "$Debug")
+    $arguments = @("start", "$Port")
+    if ($env:DEBUG) {
+        $arguments += "debug"
+    }
 }
 else {
-    $arguments = "stop"
+    $arguments = @("stop")
 }
 
-Write-Host "try to $Verb wcf.exe as administrator" -f Cyan
-$proc = Start-Process -FilePath "$binary" -ArgumentList $arguments -Verb RunAs -Wait -PassThru -WorkingDirectory $dir
+Write-Host "try to $Verb $binary as administrator" -f Cyan
+$proc = Start-Process -FilePath "$binary" -ArgumentList $arguments -Verb RunAs -Wait -PassThru
 
 if ( $proc.ExitCode -ne 0) {
     Write-Host "wcferry.exe exited abnormally" -f Red
     exit $proc.ExitCode
 }
+exit 0

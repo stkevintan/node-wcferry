@@ -2,8 +2,10 @@
 param (
     [Parameter()]
     [string]
-    $folder = "$PSScriptRoot\..\.binary"
+    $folder = "$HOME\.wcferry"
 )
+
+Write-Host "Folder:" $folder
 
 function New-Dir([string]$p) {
     if (!(Test-Path $p)) {
@@ -13,7 +15,7 @@ function New-Dir([string]$p) {
 }
 
 $folder = New-Dir $folder
-
+Write-Host Download Directory: $folder -f Gray
 
 $ErrorActionPreference = "stop"
 
@@ -28,6 +30,7 @@ function DownloadLatest() {
         Write-Host "File already exists." -f Yellow
     }
     else {
+        Write-Host Downloading to $output
         Invoke-WebRequest -Uri $turl -OutFile $output
     }
     Write-Host "Downloaded to $output" -f Cyan
