@@ -109,6 +109,7 @@ importers:
       protoc-gen-ts:
         specifier: ^0.8.7
         version: 0.8.7
+    publishDirectory: ../../dist/packages/core
 
   packages/ws:
     dependencies:
@@ -117,7 +118,7 @@ importers:
         version: 0.5.3
       '@wcferry/core':
         specifier: workspace:^*
-        version: link:../core
+        version: link:../../dist/packages/core
       commander:
         specifier: ^11.1.0
         version: 11.1.0
@@ -131,6 +132,7 @@ importers:
       '@types/ws':
         specifier: ^8.5.10
         version: 8.5.10
+    publishDirectory: ../../dist/packages/ws
 
 packages:
 
