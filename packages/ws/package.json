@@ -17,7 +17,8 @@
     "main": "./src/index.js",
     "typings": "./src/index.d.ts",
     "publishConfig": {
-        "registry": "https://registry.npmjs.org/"
+        "registry": "https://registry.npmjs.org/",
+        "directory": "../../dist/packages/ws"
     },
     "repository": {
         "url": "git+https://github.com/stkevintan/node-wcferry.git",
