@@ -45,7 +45,7 @@ jobs:
               run: |
                   npm config set provenance true
                   $commit = "$(git log -1 --pretty=%B)"
-                  if (!($commit -match "^((core|ws)@[0-9]+\.[0-9]+\.[0-9]+\+?)+$")) {
+                  if (!($commit -match "^\s*((core|ws)@[0-9]+\.[0-9]+\.[0-9]+\+?)+\s*$")) {
                     Write-Host "Not a release, skipping publish"
                     exit 0
                   }

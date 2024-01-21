@@ -43,9 +43,9 @@ function Get-Pbs {
 
 function Invoke-ProtoGen {
     Write-Host Compiling pb into ts files
-    $PROTOC_GEN_TS_PATH = "$PSScriptRoot/node_modules/.bin/protoc-gen-ts$ext" | Resolve-Path
-    $GRPC_TOOLS_NODE_PROTOC_PLUGIN = "$PSScriptRoot/node_modules/.bin/grpc_tools_node_protoc_plugin$ext" | Resolve-Path
-    $GRPC_TOOLS_NODE_PROTOC = "$PSScriptRoot/node_modules/.bin/grpc_tools_node_protoc$ext" | Resolve-Path
+    $PROTOC_GEN_TS_PATH = "$PSScriptRoot/../node_modules/.bin/protoc-gen-ts$ext" | Resolve-Path
+    $GRPC_TOOLS_NODE_PROTOC_PLUGIN = "$PSScriptRoot/../node_modules/.bin/grpc_tools_node_protoc_plugin$ext" | Resolve-Path
+    $GRPC_TOOLS_NODE_PROTOC = "$PSScriptRoot/../node_modules/.bin/grpc_tools_node_protoc$ext" | Resolve-Path
 
     # Generate ts codes for each .proto file using the grpc-tools for Node.
     $arguments = @(

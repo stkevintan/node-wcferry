@@ -1,8 +1,10 @@
+import os from 'os';
 import { Socket, SocketOptions } from '@rustup/nng';
 import * as cp from 'child_process';
 import debug from 'debug';
 import { wcf } from './proto-generated/wcf';
 import * as rd from './proto-generated/roomdata';
+import * as eb from './proto-generated/extrabyte';
 import { EventEmitter } from 'events';
 import {
     createTmpDir,
@@ -43,10 +45,11 @@ export class Wcferry {
     private isMsgReceiving = false;
     private msgDispose?: () => void;
     private socket: Socket;
-    private localMode = false;
+    private readonly localMode;
     private readonly msgEventSub = new EventEmitter();
     private options: Required<WcferryOptions>;
     constructor(options?: WcferryOptions) {
+        this.localMode = !options?.host;
         this.options = {
             port: options?.port || 10086,
             host: options?.host || '127.0.0.1',
@@ -54,9 +57,6 @@ export class Wcferry {
             cacheDir: options?.cacheDir || createTmpDir(),
             recvPyq: !!options?.recvPyq,
         };
-        if (!options?.host) {
-            this.localMode = true;
-        }
 
         ensureDirSync(this.options.cacheDir);
 
@@ -107,9 +107,7 @@ export class Wcferry {
 
     start() {
         try {
-            if (this.localMode) {
-                this.execDLL('start');
-            }
+            this.execDLL('start');
             this.socket.connect(this.createUrl());
             this.trapOnExit();
             if (this.msgListenerCount > 0) {
@@ -122,6 +120,9 @@ export class Wcferry {
     }
 
     execDLL(verb: 'start' | 'stop') {
+        if (!this.localMode) {
+            return;
+        }
         const scriptPath = path.resolve(__dirname, '../../scripts/wcferry.ps1');
         const process = cp.spawnSync(
             'powershell',
@@ -326,7 +327,7 @@ export class Wcferry {
         return Object.fromEntries(
             r.members.map((member) => [
                 member.wxid,
-                member.name ?? userDict[member.wxid],
+                member.name || userDict[member.wxid],
             ])
         );
     }
@@ -338,14 +339,6 @@ export class Wcferry {
      * @returns 群名片
      */
     getAliasInChatRoom(wxid: string, roomid: string): string | undefined {
-        const [row] = this.dbSqlQuery(
-            'MicroMsg.db',
-            `SELECT NickName FROM Contact WHERE UserName = '${wxid}';`
-        );
-        const nickName = row?.['NickName'];
-        if (!nickName) {
-            return undefined;
-        }
         const [room] = this.dbSqlQuery(
             'MicroMsg.db',
             `SELECT RoomData FROM ChatRoom WHERE ChatRoomName = '${roomid}';`
@@ -353,10 +346,28 @@ export class Wcferry {
         if (!room) {
             return undefined;
         }
+
         const roomData = rd.com.iamteer.wcf.RoomData.deserialize(
             room['RoomData'] as Buffer
         );
-        return roomData.members.find((m) => m.wxid === wxid)?.name;
+        return (
+            roomData.members.find((m) => m.wxid === wxid)?.name ||
+            this.getNickName(wxid)?.[0]
+        );
+    }
+
+    /**
+     * be careful to SQL injection
+     * @param wxids wxids
+     */
+    getNickName(...wxids: string[]): Array<string | undefined> {
+        const rows = this.dbSqlQuery(
+            'MicroMsg.db',
+            `SELECT NickName FROM Contact WHERE UserName in (${wxids
+                .map((id) => `'${id}'`)
+                .join(',')});`
+        );
+        return rows.map((row) => row['NickName'] as string | undefined);
     }
 
     /**
@@ -699,6 +710,42 @@ export class Wcferry {
         return rsp.status;
     }
 
+    // TODO: get correct wechat files directory somewhere?
+    private readonly UserDir = path.join(
+        os.homedir(),
+        'Documents',
+        'WeChat Files'
+    );
+
+    private getMsgAttachments(msgid: string): {
+        extra?: string;
+        thumb?: string;
+    } {
+        const messages = this.dbSqlQuery(
+            'MSG0.db',
+            `Select * from MSG WHERE MsgSvrID = "${msgid}"`
+        );
+        const buf = messages?.[0]?.['BytesExtra'];
+        if (!Buffer.isBuffer(buf)) {
+            return {};
+        }
+        const extraData = eb.com.iamteer.wcf.Extra.deserialize(buf);
+        const { properties } = extraData.toObject();
+        if (!properties) {
+            return {};
+        }
+        const propertyMap: Partial<
+            Record<eb.com.iamteer.wcf.Extra.PropertyKey, string>
+        > = Object.fromEntries(properties.map((p) => [p.type, p.value]));
+        const extra = propertyMap[eb.com.iamteer.wcf.Extra.PropertyKey.Extra];
+        const thumb = propertyMap[eb.com.iamteer.wcf.Extra.PropertyKey.Thumb];
+
+        return {
+            extra: extra ? path.resolve(this.UserDir, extra) : '',
+            thumb: thumb ? path.resolve(this.UserDir, thumb) : '',
+        };
+    }
+
     /**
      * @deprecated 解密图片。这方法别直接调用，下载图片使用 `download_image`。
      * @param src 加密的图片路径
@@ -720,22 +767,32 @@ export class Wcferry {
     /**
      * 下载图片
      * @param msgid 消息中 id
-     * @param extra 消息中的 extra
      * @param dir 存放图片的目录（目录不存在会出错）
+     * @param extra 消息中的 extra, 如果为空，自动通过msgid获取
      * @param times 超时时间（秒）
      * @returns 成功返回存储路径；空字符串为失败，原因见日志。
      */
     async downloadImage(
         msgid: string,
-        extra: string,
         dir: string,
+        extra?: string,
+        thumb?: string,
         times = 30
     ): Promise<string> {
-        if (this.downloadAttach(msgid, undefined, extra) !== 0) {
+        const msgAttachments = extra
+            ? { extra, thumb }
+            : this.getMsgAttachments(msgid);
+        if (
+            this.downloadAttach(
+                msgid,
+                msgAttachments.thumb,
+                msgAttachments.extra
+            ) !== 0
+        ) {
             return Promise.reject('Failed to download attach');
         }
         for (let cnt = 0; cnt < times; cnt++) {
-            const path = this.decryptImage(extra, dir);
+            const path = this.decryptImage(msgAttachments.extra || '', dir);
             if (path) {
                 return path;
             }
