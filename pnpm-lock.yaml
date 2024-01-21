@@ -116,7 +116,7 @@ importers:
         specifier: ~0.5.2
         version: 0.5.3
       '@wcferry/core':
-        specifier: '*'
+        specifier: workspace:^*
         version: link:../core
       commander:
         specifier: ^11.1.0
