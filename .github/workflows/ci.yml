@@ -49,8 +49,6 @@ jobs:
                     Write-Host "Not a release, skipping publish"
                     exit 0
                   }
-                  echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-
                   if ($commit -match "core@[0-9]+\.[0-9]+\.[0-9]+") {
                     pnpm nx run core:publish --ver $($Matches[0])
                   }
@@ -59,4 +57,4 @@ jobs:
                   }
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
