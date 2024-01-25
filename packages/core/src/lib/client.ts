@@ -796,7 +796,7 @@ export class Wcferry {
             if (path) {
                 return path;
             }
-            sleep();
+            await sleep();
         }
         return Promise.reject('Failed to decrypt image');
     }
