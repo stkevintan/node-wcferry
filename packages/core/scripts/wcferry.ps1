@@ -31,7 +31,10 @@ $binary = $binary | Resolve-Path
 Write-Host "wcf.exe is located in $binary" -f Green
 
 if ($Verb -eq 'start') {
-    $arguments = @("start", "$Port", "$Debug")
+    $arguments = "start", "$Port"
+    if (-not [string]::IsNullOrEmpty($Debug)) {
+        $arguments += "$Debug"
+    }
 }
 else {
     $arguments = "stop"
