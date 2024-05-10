@@ -1,6 +1,6 @@
 {
-    "name": "@wcferry/core",
-    "version": "0.1.6",
+    "name": "@zippybee/wechatcore",
+    "version": "0.1.7",
     "scripts": {
         "build:proto": "powershell ./gen-proto.ps1"
     },

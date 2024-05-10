@@ -1,5 +1,7 @@
 # @wcferry/core
 
+# 本包基于 @wcferry/core 做的优化 bug 修复
+
 A node impl of wcferry nanomsg clients
 
 ## Install
