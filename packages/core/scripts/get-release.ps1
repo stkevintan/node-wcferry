@@ -5,14 +5,11 @@ param (
     $folder = "$PSScriptRoot\..\.binary"
 )
 
-function New-Dir([string]$p) {
-    if (!(Test-Path $p)) {
-        New-Item -ItemType Directory -Force -Path $p
-    }
-    return $p | Resolve-Path
+# 检查文件夹是否存在
+if (-not (Test-Path $folder)) {
+    # 如果不存在，则创建文件夹
+    $null = New-Item -Path $folder -ItemType Directory
 }
-
-$folder = New-Dir $folder
 
 
 $ErrorActionPreference = "stop"

@@ -41,7 +41,7 @@ else {
 }
 
 Write-Host "try to $Verb wcf.exe as administrator" -f Cyan
-$proc = Start-Process -FilePath "$binary" -ArgumentList $arguments -Verb RunAs -Wait -PassThru -WorkingDirectory $dir
+$proc = Start-Process -FilePath "$binary" -ArgumentList $arguments -Verb RunAs -Wait -PassThru -WorkingDirectory $dir -WindowStyle Hidden
 
 if ( $proc.ExitCode -ne 0) {
     Write-Host "wcferry.exe exited abnormally" -f Red
