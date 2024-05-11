@@ -16,7 +16,8 @@ $ErrorActionPreference = "stop"
 
 function DownloadLatest() {
     $latest = Invoke-RestMethod -Uri "https://api.github.com/repos/lich0821/WeChatFerry/releases/latest"
-    $turl = $latest.assets[0].browser_download_url
+    $repourl = $latest.assets[0].browser_download_url
+    $turl = "https://ghproxy.org/$repourl"
     Write-Host Get latest release download link: $turl -f Cyan
     # Get the filename from the URL
     $filename = [System.IO.Path]::GetFileName($turl)
