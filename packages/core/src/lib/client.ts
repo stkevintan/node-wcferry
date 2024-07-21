@@ -229,7 +229,7 @@ export class Wcferry {
     dbSqlQuery(
         db: string,
         sql: string
-    ): Record<string, string | number | Buffer | undefined>[] {
+    ): Record<string, string | number | BigInt | Buffer | undefined>[] {
         const req = new wcf.Request({
             func: wcf.Functions.FUNC_EXEC_DB_QUERY,
             query: new wcf.DbQuery({ db, sql }),
@@ -956,6 +956,10 @@ function parseDbField(type: number, content: Uint8Array) {
     // self._SQL_TYPES = {1: int, 2: float, 3: lambda x: x.decode("utf-8"), 4: bytes, 5: lambda x: None}
     switch (type) {
         case 1:
+            const bigIntContent = BigInt(uint8Array2str(content));
+            if (bigIntContent > Number.MAX_SAFE_INTEGER) {
+                return bigIntContent;
+            }
             return Number.parseInt(uint8Array2str(content), 10);
         case 2:
             return Number.parseFloat(uint8Array2str(content));
