@@ -956,7 +956,14 @@ function parseDbField(type: number, content: Uint8Array) {
     // self._SQL_TYPES = {1: int, 2: float, 3: lambda x: x.decode("utf-8"), 4: bytes, 5: lambda x: None}
     switch (type) {
         case 1:
-            return Number.parseInt(uint8Array2str(content), 10);
+            const strContent = uint8Array2str(content);
+            const bigIntContent = BigInt(strContent);
+            if (bigIntContent > Number.MAX_SAFE_INTEGER) {
+                // bigInt 在JSON.stringify时会出问题，还是返回字符串吧
+                // TypeError: Do not know how to serialize a BigInt
+                return strContent;
+            }
+            return Number.parseInt(strContent, 10);
         case 2:
             return Number.parseFloat(uint8Array2str(content));
         case 3:
